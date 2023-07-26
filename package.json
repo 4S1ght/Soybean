@@ -1,0 +1,17 @@
+{
+  "name": "soybean",
+  "version": "0.0.3",
+  "description": "Task automation and convenience tool for building NodeJS projects.",
+  "main": "build/index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4S1ght/Soybean.git"
+  },
+  "author": "4S1ght",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/4S1ght/Soybean/issues"
+  },
+  "homepage": "https://github.com/4S1ght/Soybean#readme"
+}
