@@ -16,5 +16,8 @@
   "homepage": "https://github.com/4S1ght/Soybean#readme",
   "devDependencies": {
     "@types/node": "^20.4.5"
+  },
+  "dependencies": {
+    "tree-kill": "^1.2.2"
   }
 }
