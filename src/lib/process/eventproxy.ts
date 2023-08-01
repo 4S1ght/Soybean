@@ -1,7 +1,6 @@
 
 import EventEmitter from 'events'
 
-
 /**
  * A class built on top of EventEmitter that implements pause/resume functionality.
  */

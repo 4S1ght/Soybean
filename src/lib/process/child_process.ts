@@ -4,14 +4,14 @@
 import EventProxy from "./eventproxy.js"
 import cp from 'child_process'
 import treeKill from 'tree-kill'
-import { extractCommandArgv } from "./helpers.js"
+import { extractCommandArgv } from "./process_helpers.js"
 
 import type { SpawnOptions } from "../../../types/SpawnOptions.js"
 
 // ==================================================================
 
-type ProcessEvent = 'spawn' | 'close' | 'kill' | 'kill-error' | 'restart' | 'restart-error'
-type ProcessStatus = 'awaiting' | 'alive' | 'dead' | 'killed'
+export type ProcessEvent = 'spawn' | 'close' | 'kill' | 'kill-error' | 'restart' | 'restart-error'
+export type ProcessStatus = 'awaiting' | 'alive' | 'dead' | 'killed'
 
 // ==================================================================
 
