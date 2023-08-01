@@ -4,6 +4,10 @@
   "description": "Task automation and convenience tool for building NodeJS projects.",
   "main": "build/index.js",
   "type": "module",
+  "bin": {
+    "soybean": "./build/bin/bin.js",
+    "sb": "./build/bin/bin.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/4S1ght/Soybean.git"
@@ -18,6 +22,8 @@
     "@types/node": "^20.4.5"
   },
   "dependencies": {
-    "tree-kill": "^1.2.2"
+    "commander": "^11.0.0",
+    "tree-kill": "^1.2.2",
+    "zod": "^3.21.4"
   }
 }
