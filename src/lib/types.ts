@@ -1,11 +1,25 @@
 
-import z, { union, object, literal, string, number, boolean, array } from 'zod'
+import z, { union, object, literal, string, number, boolean, array, record } from 'zod'
 import type cp from 'child_process'
+
+
+// ==================================================================
+//                       TYPE EQUALITY GUARDS
+// ==================================================================
+
+export function assert<T extends never>() {}
+type TypeEqualityGuard<A, B> = Exclude<A, B> | Exclude<B, A>
+
+assert<TypeEqualityGuard<{}, {}>>()
+
+// ==================================================================
+//                        CHILD PROCESSES
+// ==================================================================
 
 /**
  * Child process configuration.
  */
-export interface ISpawnOptions extends cp.SpawnOptions {
+export interface SpawnOptions extends Omit<cp.SpawnOptions, 'stdio'> {
     /** 
      * Shell command that summons a CLI app or child script.
      * ```js
@@ -35,35 +49,23 @@ export interface ISpawnOptions extends cp.SpawnOptions {
     deferNext?: number
 
 }
-/** 
- * Child process configuration containing all child processes.  
- * Each child's name is derived from the object key it's assigned to.
- * ```typescript
- * {
- *   // Single child process configuration.
- *   "process-name-#1": {
- *     command: ["command", "arg1", "arg2"],
- *     cwd: "./somewhere/else/",
- *     stdout: "all"
- *   }
- * }
- * ``` 
-*/
-export interface IProcessesConfig {
-    [name: string]: ISpawnOptions
-}
 
 export const ZSpawnOptions = z.object({
     command: union([ string(), array(string()) ]),
     cwd: string().optional(),
     stdout: union([ literal('all'), z.literal('none') ]).optional(),
-    deferNext: number().optional(),
-    // Illegal
-    stdio: z.string()
+    deferNext: number().optional()
 })
 
-export const ZProcessesConfig = z.record(string(), ZSpawnOptions)
+// ==================================================================
+//                             CONFIG
+// ==================================================================
 
-ZSpawnOptions.parse({
-    command: ''
+export interface SoybeanConfig {
+    /** Child process configuration. */
+    cp?: { [process_name: string]: SpawnOptions }
+}
+
+export const ZSoybeanConfig = z.object({
+    cp: record(string(), ZSpawnOptions).optional()
 })

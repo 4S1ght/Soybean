@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
-import path, { relative } from 'path'
+import path from 'path'
 import fs from 'fs'
 import url from 'url'
+import c from 'chalk'
 import { program } from 'commander'
+import Terminal from '../lib/terminal/terminal.js'
+import Program from '../lib/program.js'
 
 const __filename = url.fileURLToPath(import.meta.url)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
@@ -54,18 +57,19 @@ program
 
         })()
 
-        if (!found) {
-            console.log(`Could not find the configuration file. Path: "${actualLocation}"`)
-            process.exit(-1)
-        }
+        if (!found) return Terminal.EXIT_HARD(`Could not find the configuration file. Path: "${actualLocation}"`)
 
-        console.log(`Loading "${relativeLocation}"`)
+        Terminal.box(1, 'blue', `Soybean ${c.grey("v"+__package.version)}`)
+        Terminal.INFO(`Loading "${relativeLocation}"`)
 
         const link = url.pathToFileURL(actualLocation).href
-        const config = await import(link)
-        const program = config.exports || config.default || config
+        const module = await import(link)
+        const program: Program = module.exports || module.default || module
+        const cwd = path.dirname(relativeLocation)
 
+        if (program instanceof Program === false) Terminal.EXIT_HARD(`Used configuration file must export a program instance created with the "Soybean" function.`)
 
+        program.start(cwd)
 
     })
 

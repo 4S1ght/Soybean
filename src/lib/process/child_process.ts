@@ -5,8 +5,8 @@ import EventProxy from "./eventproxy.js"
 import cp from 'child_process'
 import treeKill from 'tree-kill'
 import { extractCommandArgv } from "./process_helpers.js"
+import type { SpawnOptions } from "../types.js"
 
-import type { ISpawnOptions } from "../types/process_config.js"
 
 // ==================================================================
 
@@ -29,14 +29,14 @@ export default class ChildProcess extends EventProxy<ProcessEvent> {
     public declare alive: boolean
 
     public name: string
-    public spawnOptions: ISpawnOptions
+    public spawnOptions: SpawnOptions
     public spawnTime: number = -1
     public deathTime: number = -1
 
     public status: ProcessStatus = 'awaiting'
     public restarted = false
 
-    constructor(name: string, spawnOptions: ISpawnOptions) {
+    constructor(name: string, spawnOptions: SpawnOptions) {
         super()
         this.name = name
         this.spawnOptions = spawnOptions
