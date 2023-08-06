@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.5]
+
+### Added
+- `./` scoped export for main Soybean program constructor
+- `./handlers` scoped export for command and event handlers.
+
+### Changed
+- Exports now reside in a separate directory.
+
 ## [0.0.4]
 
 ### Added
