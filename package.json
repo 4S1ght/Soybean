@@ -1,34 +1,40 @@
 {
-  "name": "soybean",
-  "version": "0.0.5",
-  "description": "Task automation and convenience tool for building NodeJS projects.",
-  "main": "build/index.js",
-  "type": "module",
-  "exports": {
-    ".": "./build/exports/index.js",
-    "./handlers": "./build/exports/handlers.js"
-  },
-  "bin": {
-    "soybean": "./build/bin/bin.js",
-    "sb": "./build/bin/bin.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/4S1ght/Soybean.git"
-  },
-  "author": "4S1ght",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/4S1ght/Soybean/issues"
-  },
-  "homepage": "https://github.com/4S1ght/Soybean#readme",
-  "devDependencies": {
-    "@types/node": "^20.4.5"
-  },
-  "dependencies": {
-    "chalk": "^5.3.0",
-    "commander": "^11.0.0",
-    "tree-kill": "^1.2.2",
-    "zod": "^3.21.4"
-  }
+    "name": "soybean",
+    "version": "0.0.5",
+    "description": "Task automation and convenience tool for building NodeJS projects.",
+    "main": "build/index.js",
+    "type": "module",
+    "exports": {
+        ".": {
+            "default": "./build/exports/index.js",
+            "types": "./build/exports/index.d.ts"
+        },
+        "./handlers": {
+            "default": "./build/exports/handlers.js",
+            "types": "./build/exports/handlers.d.ts"
+        }
+    },
+    "bin": {
+        "soybean": "./build/bin/bin.js",
+        "sb": "./build/bin/bin.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/4S1ght/Soybean.git"
+    },
+    "author": "4S1ght",
+    "license": "GPL-3.0",
+    "bugs": {
+        "url": "https://github.com/4S1ght/Soybean/issues"
+    },
+    "homepage": "https://github.com/4S1ght/Soybean#readme",
+    "devDependencies": {
+        "@types/node": "^20.4.5"
+    },
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "commander": "^11.0.0",
+        "tree-kill": "^1.2.2",
+        "zod": "^3.21.4"
+    }
 }
