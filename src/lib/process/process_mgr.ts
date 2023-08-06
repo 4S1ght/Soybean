@@ -2,8 +2,21 @@
 // ==================================================================
 
 import EventProxy from "./eventproxy.js"
+import Terminal from "../terminal/terminal.js"
 import ChildProcess, { ProcessEvent } from "./child_process.js"
 import type { SpawnOptions } from "../types.js"
+
+// ==================================================================
+
+interface ProcessInfo {
+    name:       string
+    status:     string
+    ipc:        boolean
+    pid:        number | undefined
+    uptime:     number
+    spawnargs:  string[]
+    exitCode:   number | null
+}
 
 // ==================================================================
 
@@ -71,5 +84,48 @@ export default class ProcessManager extends EventProxy<ProcessEvent> {
 
     }
 
+    /**
+     * Returns a list child processes and their information and status.
+     */
+    public getStatusList() {
+
+        const fields: ProcessInfo[] = []
+
+        this.children.forEach(x => {
+            fields.push({
+                name:       x.name,
+                status:     x.status,
+                ipc:        Boolean(x.ref.channel),
+                pid:        x.ref.pid,
+                uptime:     ['dead', 'killed'].includes(x.status) ? x.deathTime - x.spawnTime : Date.now() - x.spawnTime,
+                spawnargs:  x.ref.spawnargs,
+                exitCode:   x.ref.exitCode,
+            })
+        })
+
+        return fields
+
+    }
+
+    /**
+     * Attempts to close all running processes.
+     */
+    public async closeAll(): Promise<Error | void> {
+
+        const processes = this.children.entries()
+
+        try {
+            for (const [name, process] of processes) {
+                if (['awaiting', 'alive'].includes(process.status)) {
+                    Terminal.EXIT(`Shutting process "${name}"...`)
+                    await process.kill(true)
+                }
+            }
+        } 
+        catch (error) {
+            return error as Error
+        }
+
+    }
 
 }

@@ -39,7 +39,7 @@ export default class ChildProcess extends EventProxy<ProcessEvent> {
     constructor(name: string, spawnOptions: SpawnOptions) {
         super()
         this.name = name
-        this.spawnOptions = spawnOptions
+        this.spawnOptions = {...spawnOptions}
     }
 
     private registerEvents() {
@@ -68,6 +68,7 @@ export default class ChildProcess extends EventProxy<ProcessEvent> {
 
     public spawn = () => {
 
+        console.log(this.spawnOptions)
         const [cmd, argv] = extractCommandArgv(this.spawnOptions.command)
 
         this.ref = cp.spawn(cmd, argv, {

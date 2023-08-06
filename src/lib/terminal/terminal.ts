@@ -29,7 +29,7 @@ export default class Terminal {
      */
     public static ERROR = (...msg: (string|Error)[]) => {
         const error = msg[msg.length - 1] instanceof Error ? msg.pop() as Error : null;
-        console.log(c.red(`ERR  ${msg.join(' ')}`))
+        console.log(c.red(`ERR ${msg.join(' ')}`))
         if (error) console.log(error)
     }
 
