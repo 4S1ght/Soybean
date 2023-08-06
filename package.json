@@ -4,6 +4,10 @@
   "description": "Task automation and convenience tool for building NodeJS projects.",
   "main": "build/index.js",
   "type": "module",
+  "exports": {
+    ".": "./build/exports/index.js",
+    "./handlers": "./build/exports/handlers.js" 
+  },
   "bin": {
     "soybean": "./build/bin/bin.js",
     "sb": "./build/bin/bin.js"
