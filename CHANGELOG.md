@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.0.6]
+
+### Fixed
+- Fixed scoped exports in `package.json`
+
 ## [0.0.5]
 
 ### Added
