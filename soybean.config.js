@@ -1,12 +1,20 @@
 
-import { Soybean } from './build/lib/exports.js'
+import { Soybean, handlers } from './build/lib/exports.js'
 
 export default Soybean({
     cp: {
-        tsc: {
-            command: 'http-server',
+        http: {
+            command: ['http-server'],
             cwd: './',
             stdout: 'all'
+        }
+    },
+    terminal: {
+        passthroughShell: true,
+        handlers: {
+            'test': handlers.handle((e) => {
+                console.log(`test command, argv:`, e.terminal.argvRaw || 'empty')
+            })
         }
     }
 })
