@@ -4,7 +4,17 @@ node_modules/
 
 # build / source files
 src/
+
+# Configuration
+tsconfig.json
+soybean.config.js
+.editorconfig
+
+# Runtime files
 .cmdhistory
 
 # OS
 .DS_Store
+
+# Other
+CHANGELOG.md

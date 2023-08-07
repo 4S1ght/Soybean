@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
 - Removed old debug log displaying child process spawn settings.
+- Removed `.editorconfig`, `tsconfig.json`, `soybean.config.js` and `CHANGELOG.md` from files published to NPM.
 
 ## [0.0.6]
 
