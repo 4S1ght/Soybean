@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
+- Removed old debug log displaying child process spawn settings.
 
 ## [0.0.6]
 
