@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
+
 ## [0.0.6]
 
 ### Fixed

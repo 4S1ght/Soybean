@@ -109,24 +109,31 @@ export class LiveTerminal extends EventEmitter {
      * Due to random IO from child processes the string might be duplicated across multiple
      * lines if it's being edited while something is being printed out to the console.
      */
-    private _displayCommandString(): void {
+    private _displayCommandString() {
+        return new Promise<void>(resolve => {
 
-        const text = this._getCurrentCommand()
-            .slice(this._xOffset, this._xOffset + getStdColumns())
-            .join('')
-
-        const finish = () => readline.cursorTo(process.stdout, this._cursorIndex - this._xOffset, process.stdout.rows)
-
-        readline.cursorTo(process.stdout, 0, process.stdout.rows, () => {
-            readline.clearLine(process.stdout, 0, () => {
-                if (this._finishedCommand) {
-                    console.log(this._finishedCommand)
-                    this._finishedCommand = ''
-                }
-                else process.stdout.write(text, finish)
+            const text = this._getCurrentCommand()
+                .slice(this._xOffset, this._xOffset + getStdColumns())
+                .join('')
+    
+            const finish = () => readline.cursorTo(process.stdout, this._cursorIndex - this._xOffset, process.stdout.rows)
+            
+            readline.cursorTo(process.stdout, 0, process.stdout.rows, () => {
+                readline.clearLine(process.stdout, 0, () => {
+                    // Display the command string
+                    if (this._finishedCommand) {
+                        console.log(this._finishedCommand)
+                        this._finishedCommand = ''
+                        resolve()
+                    }
+                    else {
+                        process.stdout.write(text, finish)
+                        resolve()
+                    }
+                })
             })
-        })
 
+        })
     }
 
     private _attachPassthroughShell(hideWarning?: boolean) {
@@ -153,10 +160,16 @@ export class LiveTerminal extends EventEmitter {
         })
     }
 
+    private _resetCursorPosition = () => new Promise<void>(resolve => {
+        readline.cursorTo(process.stdout, 0, process.stdout.rows, () => resolve())
+    })
+
     /* Get the currently edited command. */
     private _getCurrentCommand = () => this._history[this._historyIndex]
     /** Get the last command that was used. */
     private _getLastCommand = () => this._history[this._history.length - 1]
+    /** Clears the currently edited command. */
+    private _clearCurrentCommand = () => this._history[this._historyIndex] = []
     /** Check whether editing a command from history to copy it to the current working array. */
     private _isEditingOldCommand = () => this._historyIndex < this._history.length - 1
     
@@ -428,10 +441,16 @@ export class LiveTerminal extends EventEmitter {
     // =========================================
 
     /** Handles the exit sequence */
-    private SEQUENCE_EXIT(): void {
+    private async SEQUENCE_EXIT(): Promise<void> {
         const now = Date.now()
         if (now - CTRL_C_ACCEPT_DELAY < this._lastExitCall) {
             this._saveHistoryFile()
+
+            // Clear stdio line in case it had content and there are exit logs made externally
+            /**/ this._clearCurrentCommand()        // Clear history
+            /**/ await this._displayCommandString() // Reflect it in the terminal
+            /**/ await this._resetCursorPosition()  // Reset cursor position before potential logs
+
             this.emit('exit')
         }
         this._lastExitCall = now
