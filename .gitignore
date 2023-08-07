@@ -4,6 +4,7 @@ node_modules/
 
 # build / source files
 build/
+.cmdhistory
 
 # OS
 .DS_Store

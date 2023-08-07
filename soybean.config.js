@@ -11,6 +11,7 @@ export default Soybean({
     },
     terminal: {
         passthroughShell: true,
+        keepHistory: 100,
         handlers: {
             'test': handlers.handle((e) => {
                 console.log(`test command, argv:`, e.terminal.argvRaw || 'empty')

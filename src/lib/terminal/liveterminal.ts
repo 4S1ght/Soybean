@@ -180,7 +180,7 @@ export class LiveTerminal extends EventEmitter {
     private _loadHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
-                const file = path.join(__dirname, "../../../.cmdh")
+                const file = path.join(__dirname, "../../../.cmdhistory")
                 if (fs.existsSync(file)) {
                     this._history = [
                         ...fs.readFileSync(file, { encoding: 'utf-8'}).split('\n').map(x => x.split('')),
@@ -200,7 +200,7 @@ export class LiveTerminal extends EventEmitter {
     private _saveHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
-                const file = path.join(__dirname, "../../history.txt")
+                const file = path.join(__dirname, "../../../.cmdhistory")
                 const slice = this._history.slice(-this.p!.keepHistory)
                 slice.pop() // Remove working char array (the one that can be edited by the user)
                 const history = slice.map(x => x.join('')).join('\n')

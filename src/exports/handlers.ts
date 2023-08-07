@@ -1,2 +1,2 @@
 
-export * as misc from '../lib/events/event_handlers.js'
+export * from '../lib/events/event_handlers.js'
