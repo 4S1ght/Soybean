@@ -68,7 +68,6 @@ export default class ChildProcess extends EventProxy<ProcessEvent> {
 
     public spawn = () => {
 
-        console.log(this.spawnOptions)
         const [cmd, argv] = extractCommandArgv(this.spawnOptions.command)
 
         this.ref = cp.spawn(cmd, argv, {
