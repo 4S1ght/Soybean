@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- The help message now shows a list of user-specified command handlers.
+
 ### Fixed
 - "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
+- The help message is now a single log and will not intersect with child process logs.
+
+### Removed
 - Removed old debug log displaying child process spawn settings.
 - Removed `.editorconfig`, `tsconfig.json`, `soybean.config.js` and `CHANGELOG.md` from files published to NPM.
 

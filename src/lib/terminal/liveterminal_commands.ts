@@ -92,28 +92,41 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
                 }
             }
 
-            console.log(`\n${space(gapCat)}─── Controls ───\n`)
+            const finishedMessage: string[] = []
+
+            finishedMessage.push(`\n${space(gapCat)}─── Controls ───\n`)
+
             const controls: string[] = [
-                `Use ${c.red('← →')}, ${c.red('backspace')} and ${c.red('delete')} keys to edit your input.`,
-                `Use ${c.red('↓ ↑')} keys to navigate through command history.`,
-                `Double-press ${c.red('CTRL + C')} to exit soybean.`,
-                `Double-press ${c.red('ESC')} to restart the passthrough shell process if it gets stuck, dies or is unresponsive.`
+                `• Use ${c.red('← →')}, ${c.red('backspace')} and ${c.red('delete')} keys to edit your input.`,
+                `• Use ${c.red('↓ ↑')} keys to navigate through command history.`,
+                `• Double-press ${c.red('CTRL + C')} to exit soybean.`,
+                `• Double-press ${c.red('ESC')} to restart the passthrough shell process if it gets stuck, dies or is unresponsive.`
             ]
             controls.forEach(x => {
-                console.log(c.grey(`${space(gapCat)}${wrapTextLines(x, maxUsageStringLength + gapDesc, process.stdout.columns - maxUsageStringLength - gapEnd)}`))
+                finishedMessage.push(c.grey(`${space(gapCat)}${wrapTextLines(x, gapCat, process.stdout.columns - gapEnd)}`))
             })
 
-            console.log(`\n${space(gapCat)}─── Commands ───`)
+            finishedMessage.push(`\n${space(gapCat)}─── Commands ───`)
+
+            // Display user-specified handlers if any have been configured.
+            if (Program.getLiveInstance().config.terminal)
+            if (Program.getLiveInstance().config.terminal?.handlers) {
+                const commands = Object.keys(Program.getLiveInstance().config.terminal?.handlers!).join(', ')
+                finishedMessage.push(`\n${space(gapCat)}User-specified:`)
+                finishedMessage.push(c.grey(`${space(gapDesc)}${wrapTextLines(commands, maxUsageStringLength + gapDesc, process.stdout.columns - maxUsageStringLength - gapEnd)}`))
+            }
+
+            // Display category and info list for all the built-in commands.
             Object.keys(commandInfo).forEach(cat => {
                 const list = commandInfo[cat]
                 list.map(x => x[0] = x[0] + Array(maxUsageStringLength - x[0].length).fill(' ').join(''))
-                console.log(`\n${space(gapCat)}${cat}`)
+                finishedMessage.push(`\n${space(gapCat)}${cat}`)
                 list.forEach(x => {
-                    console.log(c.grey(`${space(gapDesc)}${x[0]}${wrapTextLines(x[1], maxUsageStringLength + gapDesc, process.stdout.columns - maxUsageStringLength - gapEnd)}`))
+                    finishedMessage.push(c.grey(`${space(gapDesc)}${x[0]}${wrapTextLines(x[1], maxUsageStringLength + gapDesc, process.stdout.columns - maxUsageStringLength - gapEnd)}`))
                 })
             })
 
-            console.log()
+            console.log([...finishedMessage, ''].join('\n'))
 
         }
         else {
@@ -123,7 +136,7 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
     }, {
         cat: 'Misc',
         usage: 'help <command?>',
-        desc: 'Shows help for a specified command or all the available ones.'
+        desc: 'Shows help information, or information specific to the selected command.'
     }),
     
     "quit": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
@@ -131,7 +144,7 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
     }, {
         cat: 'Misc',
         usage: 'quit',
-        desc: 'Exits Soybean gracefully.'
+        desc: 'Exits Soybean gracefully. Double-press CTRL+C alternatively.'
     }),
 
     // PROCESS MANAGEMENT =========================================

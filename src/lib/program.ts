@@ -16,7 +16,7 @@ export default class Program {
     private static instance: Program
     public static getLiveInstance = () => this.instance
 
-    private config: SoybeanConfig
+    public config: SoybeanConfig
     private processManager: ProcessManager
     private liveTerminal: LiveTerminal
 
