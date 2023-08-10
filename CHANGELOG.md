@@ -6,9 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - The help message now shows a list of user-specified command handlers.
+- Added `shell.spawn` event handler with `stdin` takeover mechanism (WIP)
 
 ### Fixed
-- "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
+- Fixed "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
 - The help message is now a single log and will not intersect with child process logs.
 
 ### Removed

@@ -1,2 +1,7 @@
 
-export * from '../lib/events/event_handlers.js'
+import * as h from '../lib/events/handlers.js'
+
+export default {
+    ...h.misc,
+    shell: h.shell
+}

@@ -1,6 +1,6 @@
 
 /** Event types used across the map */
-export type EventType = 'event' | 'terminal'
+export type EventType = 'event' | 'terminal' | 'task'
 
 interface Terminal {
     argvRaw: string

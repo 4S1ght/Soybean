@@ -8,3 +8,6 @@ build/
 
 # OS
 .DS_Store
+
+# Test files
+test/

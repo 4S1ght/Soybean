@@ -3,7 +3,7 @@
 
 import c from 'chalk'
 
-import * as h from '../events/event_handlers.js'
+import * as h from '../events/handlers/misc.js'
 import Terminal from './terminal.js'
 import Manager from '../process/process_mgr.js'
 import Program from '../program.js'

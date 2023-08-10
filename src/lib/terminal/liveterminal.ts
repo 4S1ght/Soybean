@@ -17,31 +17,6 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // =========================================
 
-// type EventHandler = ((...args: string[]) => any) | ((...args: string[]) => Promise<any>)
-
-// class Events {
-
-//     constructor() {}
-
-//     public events: Record<string, EventHandler> = {}
-
-//     public on(event: string, callback: EventHandler) {
-//         if (this.events[event]) throw new Error(`Duplicate event "${event}"`)
-//         this.events[event] = callback
-//     }
-
-//     public async emit(event: string, ...args: any[]) {
-//         if (!this.events[event]) throw new ReferenceError(`Unknown event "${event}"`)
-//         await this.events[event](...args)
-//     } 
-
-//     public eventNames() {
-//         return Object.keys(this.events)
-//     }
-// }
-
-// =========================================
-
 interface KeyInput { 
     sequence: string
     name:     string
@@ -68,39 +43,55 @@ export interface LiveTerminal {
 }
 export class LiveTerminal extends EventEmitter {
 
-    private declare shell: cp.ChildProcess
+    // Stores live instance reference to the terminal class
+    private static instance: LiveTerminal
+    public static getLiveInstance = () => this.instance
+
+    public captures: boolean = false
 
     constructor(public p?: LiveTerminalSettings) {
         super()
+        LiveTerminal.instance = this
     }
 
     public async start(): Promise<void> {
         readline.emitKeypressEvents(process.stdin)
-        process.stdin.setRawMode(true)
         this._loadHistoryFile()
-        this._startInputCapture() 
+        this.startInputCapture() 
         await this._attachPassthroughShell()
     }
 
-    private _startInputCapture(): void {
-        process.stdin.on('keypress', (string, key: KeyInput) => {
-            
-            if      (key.sequence === '\r')                                 this.KEY_ENTER()
-            else if (key.name === 'backspace')                              this.KEY_BACKSPACE()
-            else if (key.name === 'delete')                                 this.KEY_DELETE()
-            else if (key.name === 'c' && key.ctrl)                          this.SEQUENCE_EXIT()
-            else if (key.name === 'escape' && key.sequence === '\x1B\x1B')  this.SEQUENCE_ESCAPE()
+    public startInputCapture(): void {
+        if (!this.captures) {
+            this.captures = true
+            process.stdin.setRawMode(true)
+            process.stdin.on('keypress', (string, key: KeyInput) => {
+                
+                if      (key.sequence === '\r')                                 this.KEY_ENTER()
+                else if (key.name === 'backspace')                              this.KEY_BACKSPACE()
+                else if (key.name === 'delete')                                 this.KEY_DELETE()
+                else if (key.name === 'c' && key.ctrl)                          this.SEQUENCE_EXIT()
+                else if (key.name === 'escape' && key.sequence === '\x1B\x1B')  this.SEQUENCE_ESCAPE()
+    
+                else if (key.name === 'up')                                     this.KEY_UP()
+                else if (key.name === 'down')                                   this.KEY_DOWN()
+                else if (key.name === 'left')                                   this.KEY_LEFT()
+                else if (key.name === 'right')                                  this.KEY_RIGHT()
+                
+                else                                                            this.KEY_DEFAULT(key)
+    
+                this._displayCommandString()
+    
+            })
+        }
+    }
 
-            else if (key.name === 'up')                                     this.KEY_UP()
-            else if (key.name === 'down')                                   this.KEY_DOWN()
-            else if (key.name === 'left')                                   this.KEY_LEFT()
-            else if (key.name === 'right')                                  this.KEY_RIGHT()
-            
-            else                                                            this.KEY_DEFAULT(key)
-
-            this._displayCommandString()
-
-        })
+    public stopInputCapture(): void {
+        if (this.captures) {
+            this.captures = false
+            process.stdin.setRawMode(false)
+            process.stdin.removeAllListeners('keypress')
+        }
     }
 
     /** 
@@ -146,11 +137,11 @@ export class LiveTerminal extends EventEmitter {
                     else                                    this.p!.passthroughShell = process.env.SHELL || '/bin/sh'
                 }
                 try {
-                    this.shell = cp.spawn(this.p!.passthroughShell, {
+                    this._shell = cp.spawn(this.p!.passthroughShell, {
                         stdio: ['pipe', 'inherit', 'inherit'],
                         cwd: process.cwd()
                     })
-                    this.shell.on('spawn', resolve)
+                    this._shell.on('spawn', resolve)
                 } 
                 catch (error) {
                     reject(error)
@@ -188,6 +179,8 @@ export class LiveTerminal extends EventEmitter {
     /** Stores a the finished command to be displayed when the user presses ENTER. */
     private _finishedCommand: string = ''
 
+    /** Reference to the live background shell configured by the user. */
+    private declare _shell: cp.ChildProcess
 
     /** Loads a history file back to memory. */
     private _loadHistoryFile(): void {
@@ -325,11 +318,11 @@ export class LiveTerminal extends EventEmitter {
         // Execute the given command
         const commandExecStatus = (() => {
             const isKnownCommand = this.eventNames().includes(command!)
-            const passthrough = this.shell
+            const passthrough = this._shell
 
             if (forcePassthrough) {
                 if (this.p && this.p!.passthroughShell) {
-                    desync(() => this.shell.stdin?.write(`${command}` + (args.length ? ` ${args.join(' ')}` : '') + '\n'))
+                    desync(() => this._shell.stdin?.write(`${command}` + (args.length ? ` ${args.join(' ')}` : '') + '\n'))
                     return "cPASS"
                 }
                 else {
@@ -348,7 +341,7 @@ export class LiveTerminal extends EventEmitter {
 
             if (!isKnownCommand) {
                 if (passthrough) {
-                    desync(() => this.shell.stdin?.write(`${command}` + (args.length ? ` ${args.join(' ')}` : '') + '\n'))
+                    desync(() => this._shell.stdin?.write(`${command}` + (args.length ? ` ${args.join(' ')}` : '') + '\n'))
                     return "cPASS"
                 }
                 if (!passthrough) {
@@ -457,8 +450,8 @@ export class LiveTerminal extends EventEmitter {
     }
     
     private async SEQUENCE_ESCAPE(): Promise<void> {
-        if (this.shell) {
-            this.shell.kill("SIGTERM")
+        if (this._shell) {
+            this._shell.kill("SIGTERM")
             await this._attachPassthroughShell(true)
             Terminal.INFO(`Restarted ${this.p!.passthroughShell}`)
         }
