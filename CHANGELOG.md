@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 - The help message now shows a list of user-specified command handlers.
 - Added `shell.spawn` event handler with `stdin` takeover mechanism (WIP)
+- Added `fs.mkdir` handler.
+- Added `fs.rmdir` handler.
+- Added `fs.rm` handler.
+- Added `fs.writeFile` handler.
+- Added `fs.copyFile` handler.
 
 ### Fixed
 - Fixed "indented" exit logs after double-pressing CTRL+C when command input wasn't empty.
