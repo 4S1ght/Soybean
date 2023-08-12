@@ -19,7 +19,7 @@ function extractArgv(argv: string | string[]): [string, string[]] {
 }
 
 /**
- * "exec" creates a handler that creates a child process when called.
+ * Creates a child process when called.
  * This does NOT create a new child process that is manageable the same way the `cp` object allows to configure.
  */
 export function spawn(command: string | string[], settings: ExecOptions = {}): E.EventHandler {
@@ -27,8 +27,8 @@ export function spawn(command: string | string[], settings: ExecOptions = {}): E
 
         const [cmd, spawnargs] = extractArgv(command)
         const log = e.source === 'task' ? Terminal.TASK : Terminal.INFO
-        const lt = LiveTerminal.getLiveInstance() 
-        
+        const lt = LiveTerminal.getLiveInstance()
+
         const stdio = ({
             all: ['ignore', 'inherit', 'inherit'],
             none: ['ignore', 'ignore', 'ignore'],
@@ -36,22 +36,24 @@ export function spawn(command: string | string[], settings: ExecOptions = {}): E
         })[settings.stdio || 'all'] as StdioOptions
 
         try {
+            settings.stdio === 'takeover' && lt && lt.stopInputCapture()
             const process = cp.spawn(cmd, spawnargs, {
                 ...settings,
                 shell: settings.shell,
                 stdio: stdio,
             })
             process.on('error', (error) => {
-                log(`spawn error ("${[cmd, ...spawnargs].join(' ')}")`, error as any as string)
+                log(`spawn error ("${[cmd, ...spawnargs].join(' ')}"), code: ${process.exitCode}`, error as any as string)
+                lt.startInputCapture()
+                process.kill()
                 end(error as Error)
             })
             process.on('exit', () => {
-                log(`spawn finished ("${[cmd, ...spawnargs].join(' ')}")`)
+                log(`spawn finished ("${[cmd, ...spawnargs].join(' ')}"), code: ${process.exitCode}`)
                 lt.startInputCapture()
                 end(null)
             })
-            settings.stdio === 'takeover' && lt && lt.stopInputCapture()
-        } 
+        }
         catch (error) {
             settings.stdio === 'takeover' && lt && lt.startInputCapture()
             end(error as Error)

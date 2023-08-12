@@ -17,7 +17,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // =========================================
 
-interface KeyInput { 
+interface KeyInput {
     sequence: string
     name:     string
     ctrl:     boolean
@@ -57,7 +57,7 @@ export class LiveTerminal extends EventEmitter {
     public async start(): Promise<void> {
         readline.emitKeypressEvents(process.stdin)
         this._loadHistoryFile()
-        this.startInputCapture() 
+        this.startInputCapture()
         await this._attachPassthroughShell()
     }
 
@@ -66,22 +66,22 @@ export class LiveTerminal extends EventEmitter {
             this.captures = true
             process.stdin.setRawMode(true)
             process.stdin.on('keypress', (string, key: KeyInput) => {
-                
+
                 if      (key.sequence === '\r')                                 this.KEY_ENTER()
                 else if (key.name === 'backspace')                              this.KEY_BACKSPACE()
                 else if (key.name === 'delete')                                 this.KEY_DELETE()
                 else if (key.name === 'c' && key.ctrl)                          this.SEQUENCE_EXIT()
                 else if (key.name === 'escape' && key.sequence === '\x1B\x1B')  this.SEQUENCE_ESCAPE()
-    
+
                 else if (key.name === 'up')                                     this.KEY_UP()
                 else if (key.name === 'down')                                   this.KEY_DOWN()
                 else if (key.name === 'left')                                   this.KEY_LEFT()
                 else if (key.name === 'right')                                  this.KEY_RIGHT()
-                
+
                 else                                                            this.KEY_DEFAULT(key)
-    
+
                 this._displayCommandString()
-    
+
             })
         }
     }
@@ -94,9 +94,9 @@ export class LiveTerminal extends EventEmitter {
         }
     }
 
-    /** 
+    /**
      * Displays the currently edited command in the bottom-most line of the terminal.
-     * 
+     *
      * Due to random IO from child processes the string might be duplicated across multiple
      * lines if it's being edited while something is being printed out to the console.
      */
@@ -106,9 +106,9 @@ export class LiveTerminal extends EventEmitter {
             const text = this._getCurrentCommand()
                 .slice(this._xOffset, this._xOffset + getStdColumns())
                 .join('')
-    
+
             const finish = () => readline.cursorTo(process.stdout, this._cursorIndex - this._xOffset, process.stdout.rows)
-            
+
             readline.cursorTo(process.stdout, 0, process.stdout.rows, () => {
                 readline.clearLine(process.stdout, 0, () => {
                     // Display the command string
@@ -127,6 +127,10 @@ export class LiveTerminal extends EventEmitter {
         })
     }
 
+    /**
+     * Creates and attaches a hidden shell for command passthrough.
+     * If attached, any unrecognized commands will be passed to the background shell instead of throwing an error
+     */
     private _attachPassthroughShell(hideWarning?: boolean) {
         return new Promise<void>((resolve, reject) => {
             if (this.p && this.p!.passthroughShell) {
@@ -142,7 +146,7 @@ export class LiveTerminal extends EventEmitter {
                         cwd: process.cwd()
                     })
                     this._shell.on('spawn', resolve)
-                } 
+                }
                 catch (error) {
                     reject(error)
                 }
@@ -163,7 +167,7 @@ export class LiveTerminal extends EventEmitter {
     private _clearCurrentCommand = () => this._history[this._historyIndex] = []
     /** Check whether editing a command from history to copy it to the current working array. */
     private _isEditingOldCommand = () => this._historyIndex < this._history.length - 1
-    
+
     /** Command history */
     private _history: string[][] = [[]]
     /** Current position in the history */
@@ -194,10 +198,10 @@ export class LiveTerminal extends EventEmitter {
                     ]
                     this._historyIndex = this._history.length -1
                 }
-            } 
+            }
             catch (error) {
                 console.log(error)
-                this.emit('history-load-err', error as Error)  
+                this.emit('history-load-err', error as Error)
             }
         }
     }
@@ -212,7 +216,7 @@ export class LiveTerminal extends EventEmitter {
                 const history = slice.map(x => x.join('')).join('\n')
                 fs.writeFileSync(file, history, 'utf-8')
                 this.emit('history-emit')
-            } 
+            }
             catch (error) {
                 this.emit('history-emit-err', error as Error)
             }
@@ -230,8 +234,8 @@ export class LiveTerminal extends EventEmitter {
         this._historyIndex = toIndex
     }
 
-    /** 
-     * Removes last command from history if it's the exact same as the previous one. 
+    /**
+     * Removes last command from history if it's the exact same as the previous one.
      * Useful when pressing the UP key to reuse the same command.
      * This is so repeating the same command doesn't flood the history.
      * (I'm looking at you ZSH...)
@@ -241,7 +245,7 @@ export class LiveTerminal extends EventEmitter {
             const iLast = this._history.length - 1, iPrev = this._history.length - 2
             if (this._history[iLast].join('') === this._history[iPrev].join(''))
                 this._history.pop()
-        } 
+        }
         catch {}
     }
 
@@ -258,7 +262,7 @@ export class LiveTerminal extends EventEmitter {
         else {
             this._cursorIndex = this._indexAndOffsetCache[0]
             this._xOffset     = this._indexAndOffsetCache[1]
-        }   
+        }
     }
 
     private _showCommandError(command: string, args: string[], error: Error): void {
@@ -293,7 +297,7 @@ export class LiveTerminal extends EventEmitter {
 
         let string = this._getLastCommand().join('')
         if (string.replace(/ |\t/g, '').length === 0) return
-        
+
         let args = string.split(' ')
         let command = args.shift()
 
@@ -333,7 +337,7 @@ export class LiveTerminal extends EventEmitter {
 
             if (isKnownCommand) {
                 desync(async () => {
-                    try           { await this.emit(command!, ...args) } 
+                    try           { await this.emit(command!, ...args) }
                     catch (error) { this._showCommandError(command!, args, error as Error) }
                 })
                 return "cOK"
@@ -361,18 +365,18 @@ export class LiveTerminal extends EventEmitter {
             cERR: c.red,
             cPASS: c.blue
         })[commandExecStatus];
-        
+
         if (string.length + 6 > getStdColumns()) {
             string = string.slice(0, getStdColumns() - 7) + '...'
         }
 
         // Requires 3rd party fonts to render the message
-        // this._finishedCommand = 
+        // this._finishedCommand =
         //     cp.statBG('  ') + cp.stat(cp.contentBG('\uE0B0')) +
         //     cp.text(cp.contentBG(` ${string}`)) + cp.content('\uE0B0') + "\x1b[0m"
 
         // Use a general message that all terminals should be able to render correctly.
-        this._finishedCommand = 
+        this._finishedCommand =
             cp(`> ${string}`)
 
     }
@@ -408,7 +412,7 @@ export class LiveTerminal extends EventEmitter {
         if (this._historyIndex > 0) this._historyIndex--
         this._setIndexAndOffset()
     }
-    
+
     /** Goes DOWN, or "forward" in history. */
     private KEY_DOWN(): void {
         if (this._historyIndex < this._history.length - 1) this._historyIndex++
@@ -448,7 +452,7 @@ export class LiveTerminal extends EventEmitter {
         }
         this._lastExitCall = now
     }
-    
+
     private async SEQUENCE_ESCAPE(): Promise<void> {
         if (this._shell) {
             this._shell.kill("SIGTERM")
@@ -456,7 +460,7 @@ export class LiveTerminal extends EventEmitter {
             Terminal.INFO(`Restarted ${this.p!.passthroughShell}`)
         }
     }
-   
+
 }
 
 export default LiveTerminal

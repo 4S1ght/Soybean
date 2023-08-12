@@ -15,13 +15,13 @@ export default Soybean({
         keepHistory: 100,
         handlers: {
             'test': handlers.handle((e) => {
-                console.log(`test command, argv:`, e.terminal.argvRaw || 'empty')
+                console.log(`test command, argv:`, e.terminal.argv.join('|') || 'empty')
             }),
             'npm-init': handlers.group([
+                handlers.fs.mkdir('./test'),
                 handlers.shell.spawn(['npm', 'init'], {
                     stdio: 'takeover',
-                    cwd: './test',
-                    shell: 'cmd.exe'
+                    cwd: './test'
                 })
             ])
         }

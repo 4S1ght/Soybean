@@ -21,6 +21,9 @@
         "soybean": "./build/bin/bin.js",
         "sb": "./build/bin/bin.js"
     },
+    "scripts": {
+        "zshperm": "chmod +x ./build/bin/bin.js"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/4S1ght/Soybean.git"
