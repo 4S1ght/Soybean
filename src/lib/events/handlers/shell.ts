@@ -22,7 +22,7 @@ function extractArgv(argv: string | string[]): [string, string[]] {
  * Creates a child process when called.
  * This does NOT create a new child process that is manageable the same way the `cp` object allows to configure.
  */
-export function spawn(command: string | string[], settings: ExecOptions = {}): E.EventHandler {
+export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: string | string[], settings: ExecOptions = {}): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(end => {
 
         const [cmd, spawnargs] = extractArgv(command)

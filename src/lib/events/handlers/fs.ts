@@ -25,7 +25,7 @@ const toCWDRelative = (p: string) => path.isAbsolute(p) ? p : path.join(process.
  *
  * Alias for `fs.mkdir`
  */
-export function mkdir(directory: string): E.EventHandler {
+export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`mkdir "${directory}"`)
@@ -44,7 +44,7 @@ export function mkdir(directory: string): E.EventHandler {
  *
  * Alias for `fs.rmdir`
  */
-export function rmdir(directory: string): E.EventHandler {
+export function rmdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`rmdir "${directory}"`)
@@ -63,7 +63,7 @@ export function rmdir(directory: string): E.EventHandler {
  *
  * Alias for `fs.mkDir`
  */
-export function rm(path: string, options?: FSRmOptions): E.EventHandler {
+export function rm<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: string, options?: FSRmOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`rm "${path}"`)
@@ -82,7 +82,7 @@ export function rm(path: string, options?: FSRmOptions): E.EventHandler {
  *
  * Alias for `fs.mkDir`
  */
-export function writeFile(file: string, content: FSWriteFileData, options?: FSWriteFileOPtions): E.EventHandler {
+export function writeFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(file: string, content: FSWriteFileData, options?: FSWriteFileOPtions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`writeFile "${file}"`)
@@ -101,7 +101,7 @@ export function writeFile(file: string, content: FSWriteFileData, options?: FSWr
  *
  * Alias for `fs.mkDir`
  */
-export function copyFile(src: string, dest: string, mode?: number): E.EventHandler {
+export function copyFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(src: string, dest: string, mode?: number): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`copyFile "${path}"`)

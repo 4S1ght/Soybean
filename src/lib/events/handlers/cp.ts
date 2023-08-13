@@ -14,7 +14,7 @@ const pmi = () => ProcessManager.getLiveInstance()
 
 // Handlers =========================================================
 
-export function kill(process: string): E.EventHandler {
+export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`kill "${process}"`)
@@ -30,7 +30,7 @@ export function kill(process: string): E.EventHandler {
     })
 }
 
-export function restart(process: string): E.EventHandler {
+export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`restart "${process}"`)
@@ -46,7 +46,7 @@ export function restart(process: string): E.EventHandler {
     })
 }
 
-export function revive(process: string): E.EventHandler {
+export function revive<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             if (e.source === 'task') Terminal.TASK(`revive "${process}"`)
