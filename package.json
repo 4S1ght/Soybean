@@ -5,7 +5,7 @@
     "main": "build/exports/index.js",
     "type": "module",
     "files": [
-        "build/exports/*"
+        "build/*"
     ],
     "exports": {
         ".": {

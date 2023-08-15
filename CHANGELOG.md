@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [0.1.1]
+
+### Fixed
+- Fixed `npm publish` issues caused by bad `package.json` files list configuration that caused some files to not be published
+
 ## [0.1.0]
 
 ### Added
