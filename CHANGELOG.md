@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [0.1.0]
 
 ### Added
 - The help message now shows a list of user-specified command handlers.
