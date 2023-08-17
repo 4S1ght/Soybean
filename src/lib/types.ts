@@ -40,7 +40,7 @@ export interface SpawnOptions extends Omit<cp.SpawnOptions, 'stdio'> {
      * Specifies whether `STDOUT` should be ignored or piped to the main process.
      * Setting this option to `all` will show all the process output in the terminal.
      */
-    stdout?: 'all' | 'ignore'
+    stdout?: 'all' | 'none'
     /** 
      * Determines how long to wait before spawning the next child 
      * process after the current one had started (in milliseconds)
