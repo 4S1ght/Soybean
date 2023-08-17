@@ -1,5 +1,5 @@
 
-import z, { union, object, literal, string, number, boolean, array, record } from 'zod'
+import z, { union, literal, string, number, boolean, array, record } from 'zod'
 import type cp from 'child_process'
 import type { EventHandler, TerminalEvent } from './events/events.js'
 

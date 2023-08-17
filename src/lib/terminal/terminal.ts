@@ -1,5 +1,5 @@
 
-import c, { ChalkInstance } from 'chalk'
+import c from 'chalk'
 
 type ChalkColor = "black" | "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white" | "grey" | "gray"
 

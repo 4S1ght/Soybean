@@ -6,7 +6,6 @@ import LiveTerminal from '../../terminal/liveterminal.js'
 import type * as E from '../events.js'
 
 import cp, { StdioOptions } from 'child_process'
-import stream from 'stream'
 
 // Handlers =========================================================
 
