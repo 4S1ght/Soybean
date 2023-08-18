@@ -30,9 +30,16 @@ const desync = (x: Function) => setTimeout(x, 0)
 
 /** Delay between CTRL+C to quit the application. */
 const CTRL_C_ACCEPT_DELAY = 300
-/** Keys/sequences not accepted by KEY_DEFAULT handler */
-const DISABLED_SEQ = ['\r', '\x03', '\x1B']
 
+/** Keys/sequences not accepted by KEY_DEFAULT handler */
+const DISABLED_SEQ = [
+    // Return / Enter key
+    '\r', 
+    // CTRL+C sequence (disabled due to custom implementation)
+    '\x03', 
+    // Escape key (sometimes produces a duplicated sequence string)
+    '\x1B', '\x1B\x1B\x1B'
+]
 
 export interface LiveTerminal {
     on(eventName: string,             listener: (...args: string[]) => void         ): this
