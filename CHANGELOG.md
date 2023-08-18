@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Added `e.set()`, `e.get()`, `e.update()` and `e.updateAsync()` for storing/reading/updating information on the event object inside of grouped event handlers to enable more complex actions like reading data from the disk, processing files and alike without relying on the `handle` handler.
+
+### Fixed
+- Fixed command argv issue when spawning child processes that left the command keyword as a separate command argument.
+
 ## [0.1.1]
 
 ### Fixed
