@@ -3,6 +3,7 @@
 
 import Terminal from '../../terminal/terminal.js'
 import LiveTerminal from '../../terminal/liveterminal.js'
+import * as helpers from '../handler_helpers.js'
 import type * as E from '../events.js'
 
 import cp, { StdioOptions } from 'child_process'
@@ -32,9 +33,11 @@ export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: st
         }
 
         const [cmd, spawnargs] = extractArgv(command)
-        const log = e.source === 'task' ? Terminal.TASK : Terminal.INFO
+        const log = helpers.getLoggerType(e.source)
         const lt = LiveTerminal.getLiveInstance()
         const stdio = stdioOptions[settings.stdio || 'all'] as StdioOptions
+
+        log(`spawn "${typeof command === 'string' ? command : command.join(' ')}"`)
 
         if (!stdio) return end(Error(`spawn stdio must be one of: ${Object.keys(stdioOptions).map(x => `"${x}"`).join(', ')}.`))
 

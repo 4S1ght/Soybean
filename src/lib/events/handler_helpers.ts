@@ -1,19 +1,35 @@
 
 import path from 'path'
-import type { SoybeanEvent } from "./events.js"
+import Terminal from '../terminal/terminal.js'
+import type * as E from "./events.js"
 
 /**
  * Event handlers can pass information between them via the event object.
  * This method helps them easily extract information without any complicated logic and custom handlers
  */
-export function getStoredValue(event: SoybeanEvent, value: any) {
+export function getStoredValue(event: E.SoybeanEvent, value: any) {
     return typeof value === 'symbol'
         ? event.get(value.description!)
         : value
 }
 
+/**
+ * If the path is relative it will be turned into an absolute one relative to the current working directory.
+ * The same string is returned when the path is absolute.
+ */
 export function toCWDRelative(p: string) {
     return path.isAbsolute(p) 
         ? p 
         : path.join(process.cwd(), p)
+}
+
+/**
+ * Returns the appropriate logging function for the event type.
+ */
+export function getLoggerType(eventSource: E.SoybeanEvent['source']) {
+    switch (eventSource) {
+        case 'task':        return Terminal.TASK
+        case 'terminal':    return Terminal.CMD
+        default:            return Terminal.INFO
+    }
 }

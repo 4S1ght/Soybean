@@ -14,12 +14,11 @@ export default Soybean({
         passthroughShell: true,
         keepHistory: 100,
         handlers: {
-            'test': handlers.handle((e) => {
-                console.log(`test command, argv:`, e.terminal.argv.join('|') || 'empty')
-            }),
-            'rd': handlers.group([
-                handlers.fs.readdir('./build/exports/index.js', 'index'),
-                handlers.fs.rm('./build/exports/index.js')
+            'test': handlers.group([
+                handlers.fs.readFile('./build/lib/exports.js', 'exports', 'utf-8'),
+                handlers.handle(e => e.update('exports', x => '---\nThe exports file:\n---\n' + x)),
+                handlers.fs.mkdir('./test'),
+                handlers.fs.writeFile('./test/exports.txt', Symbol('exports')),
             ])
         }
     }

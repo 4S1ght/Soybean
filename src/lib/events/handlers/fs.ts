@@ -27,7 +27,7 @@ export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: 
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, directory)
-            if (e.source === 'task') Terminal.TASK(`mkdir "${target}"`)
+            helpers.getLoggerType(e.source)(`mkdir "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             await fsp.mkdir(readyPath, { recursive: true })
@@ -47,7 +47,7 @@ export function readdir<Event extends E.SoybeanEvent>(path: string | Symbol, sav
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)
-            if (e.source === 'task') Terminal.TASK(`readdir "${target}"`)
+            helpers.getLoggerType(e.source)(`readdir "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             const content = await fsp.readdir(readyPath, options!)
@@ -68,7 +68,7 @@ export function rmdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: 
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, directory)
-            if (e.source === 'task') Terminal.TASK(`rmdir "${target}"`)
+            helpers.getLoggerType(e.source)(`rmdir "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             await fsp.rmdir(readyPath)
@@ -89,7 +89,7 @@ export function rm<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: string |
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)
-            if (e.source === 'task') Terminal.TASK(`rm "${target}"`)
+            helpers.getLoggerType(e.source)(`rm "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             await fsp.rm(readyPath, options)
@@ -110,7 +110,7 @@ export function readFile<Event extends E.SoybeanEvent>(file: string | Symbol, sa
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, file)
-            if (e.source === 'task') Terminal.TASK(`readfile "${target}"`)
+            helpers.getLoggerType(e.source)(`readfile "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             const content = await fsp.readFile(readyPath, options)
@@ -133,7 +133,7 @@ export function writeFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(file: s
         try {
             const fileTarget = helpers.getStoredValue(e, file)
             const contentTarget = helpers.getStoredValue(e, content)
-            if (e.source === 'task') Terminal.TASK(`writeFile "${fileTarget}"`)
+            helpers.getLoggerType(e.source)(`writeFile "${fileTarget}"`)
 
             const readyPath = helpers.toCWDRelative(fileTarget)
             await fsp.writeFile(readyPath, contentTarget, options)
@@ -155,7 +155,7 @@ export function copyFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(src: str
         try {
             const srcTarget = helpers.getStoredValue(e, src)
             const destTarget = helpers.getStoredValue(e, dest)
-            if (e.source === 'task') Terminal.TASK(`copyFile "${srcTarget}" -> ${destTarget}`)
+            helpers.getLoggerType(e.source)(`copyFile "${srcTarget}" -> ${destTarget}`)
             
             const srcPath = helpers.toCWDRelative(srcTarget)
             const destPath = helpers.toCWDRelative(destTarget)
@@ -177,7 +177,7 @@ export function chmod<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: strin
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)
-            if (e.source === 'task') Terminal.TASK(`chmod "${target}"`)
+            helpers.getLoggerType(e.source)(`chmod "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
             await fsp.chmod(readyPath, mode)

@@ -3,6 +3,7 @@
 
 import Terminal from '../../terminal/terminal.js'
 import ProcessManager from '../../process/process_mgr.js'
+import * as helpers from '../handler_helpers.js'
 
 import type * as E from '../events.js'
 
@@ -17,7 +18,7 @@ const pmi = () => ProcessManager.getLiveInstance()
 export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            if (e.source === 'task') Terminal.TASK(`kill "${process}"`)
+            helpers.getLoggerType(e.source)(`kill "${process}"`)
             const cp = pmi().children.get(process)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
@@ -33,7 +34,7 @@ export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: str
 export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            if (e.source === 'task') Terminal.TASK(`restart "${process}"`)
+            helpers.getLoggerType(e.source)(`restart "${process}"`)
             const cp = pmi().children.get(process)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
@@ -49,7 +50,7 @@ export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: 
 export function revive<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            if (e.source === 'task') Terminal.TASK(`revive "${process}"`)
+            helpers.getLoggerType(e.source)(`revive "${process}"`)
             const cp = pmi().children.get(process)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
