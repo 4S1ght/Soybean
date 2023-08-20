@@ -112,6 +112,9 @@ export default class Program {
             if (error) Terminal.ERROR('[kill phase] An error had occurred while attempting a graceful shutdown:', error)
         }
 
+        // Save terminal history when quitting
+        LiveTerminal.getLiveInstance().saveHistoryFile()
+
         Terminal.EXIT(`Stopped. (${Date.now() - start}ms)`)
         process.exit()
 

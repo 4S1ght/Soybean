@@ -63,7 +63,7 @@ export class LiveTerminal extends EventEmitter {
 
     public async start(): Promise<void> {
         readline.emitKeypressEvents(process.stdin)
-        this._loadHistoryFile()
+        this.loadHistoryFile()
         this.startInputCapture()
         await this._attachPassthroughShell()
     }
@@ -194,7 +194,7 @@ export class LiveTerminal extends EventEmitter {
     private declare _shell: cp.ChildProcess
 
     /** Loads a history file back to memory. */
-    private _loadHistoryFile(): void {
+    public loadHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
                 const file = path.join(__dirname, "../../../.cmdhistory")
@@ -214,12 +214,16 @@ export class LiveTerminal extends EventEmitter {
     }
 
     /** Writes the history to a file to keep it across multiple sessions. */
-    private _saveHistoryFile(): void {
+    public saveHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
                 const file = path.join(__dirname, "../../../.cmdhistory")
                 const slice = this._history.slice(-this.p!.keepHistory)
-                slice.pop() // Remove working char array (the one that can be edited by the user)
+                // Remove working char array (the one that can be edited by the user)
+                slice.pop() 
+                // Remove the "quit" command from history (if the user exited by command input)
+                if (slice[slice.length-1].join('').indexOf('quit') === 0) slice.pop()
+                // Save history
                 const history = slice.map(x => x.join('')).join('\n')
                 fs.writeFileSync(file, history, 'utf-8')
                 this.emit('history-emit')
@@ -448,7 +452,6 @@ export class LiveTerminal extends EventEmitter {
     private async SEQUENCE_EXIT(): Promise<void> {
         const now = Date.now()
         if (now - CTRL_C_ACCEPT_DELAY < this._lastExitCall) {
-            this._saveHistoryFile()
 
             // Clear stdio line in case it had content and there are exit logs made externally
             /**/ this._clearCurrentCommand()        // Clear history
