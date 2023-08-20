@@ -1,4 +1,5 @@
 
+import path from 'path'
 import type { SoybeanEvent } from "./events.js"
 
 /**
@@ -9,4 +10,10 @@ export function getStoredValue(event: SoybeanEvent, value: any) {
     return typeof value === 'symbol'
         ? event.get(value.description!)
         : value
+}
+
+export function toCWDRelative(p: string) {
+    return path.isAbsolute(p) 
+        ? p 
+        : path.join(process.cwd(), p)
 }

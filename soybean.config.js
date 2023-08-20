@@ -17,12 +17,9 @@ export default Soybean({
             'test': handlers.handle((e) => {
                 console.log(`test command, argv:`, e.terminal.argv.join('|') || 'empty')
             }),
-            'npm-init': handlers.group([
-                handlers.fs.mkdir('./test'),
-                handlers.shell.spawn(['npm', 'init'], {
-                    stdio: 'takeover',
-                    cwd: './test'
-                })
+            'rd': handlers.group([
+                handlers.fs.readdir('./build/exports/index.js', 'index'),
+                handlers.fs.rm('./build/exports/index.js')
             ])
         }
     }
