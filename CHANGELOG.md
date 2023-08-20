@@ -14,6 +14,10 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed command argv issue when spawning child processes that left the command keyword as a separate command argument.
 - Fixed double-escape key sequence indenting text and passing unwanted input to the passthrough shell.
+- Fixed the `quit` command not emitting the command history log.
+
+### Changed
+- All built-in event handlers now emit logs during execution.
 
 ## [0.1.1]
 
