@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - Added Symbol parameter support to all `fs` event handlers. If the event object stores a piece of data, the user can now in many cases use `Symbol("key")` to use the information stored in the event instead of hard-coding it, eg. `fs.writeFile('/some/path', Symbol("content"))`
 - Added `fs.chmod` handler.
 - Added `fs.readFile` handler.
+- Added `fs.readdir` handler.
 
 ### Fixed
 - Fixed command argv issue when spawning child processes that left the command keyword as a separate command argument.
