@@ -1,7 +1,7 @@
 
 import z, { union, literal, string, number, boolean, array, record } from 'zod'
 import type cp from 'child_process'
-import type { EventHandler, TerminalEvent } from './events/events.js'
+import type { EventHandler, TerminalEvent, LaunchEvent } from './events/events.js'
 
 // ==================================================================
 //                       TYPE EQUALITY GUARDS
@@ -13,7 +13,20 @@ type TypeEqualityGuard<A, B> = Exclude<A, B> | Exclude<B, A>
 assert<TypeEqualityGuard<{}, {}>>()
 
 // ==================================================================
-//                        CHILD PROCESSES
+//                             ROUTINES
+// ==================================================================
+
+export interface Routines {
+    /** Launch routines configuration. */
+    launch?: Array<EventHandler<LaunchEvent>>
+}
+
+export const ZRoutines = z.object({
+    launch: array(z.function()).optional()
+})
+
+// ==================================================================
+//                         CHILD PROCESSES
 // ==================================================================
 
 /**
@@ -111,9 +124,12 @@ export interface SoybeanConfig {
     cp?: { [process_name: string]: SpawnOptions }
     /** Live terminal configuration. */
     terminal?: LiveTerminalSettings
+    /** Routines configuration. */
+    routines?: Routines
 }
 
 export const ZSoybeanConfig = z.object({
     cp: record(string(), ZSpawnOptions).optional(),
-    terminal: ZLiveTerminalSettings.optional()
+    terminal: ZLiveTerminalSettings.optional(),
+    routines: ZRoutines.optional()
 })
