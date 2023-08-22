@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Added launch routines - A list of event handlers to be called upon each launch of Soybean.
+- Added `set` handler.
+- Added `update` handler.
+
 ## [0.1.2]
 
 ### Added
