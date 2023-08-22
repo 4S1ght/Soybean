@@ -6,13 +6,9 @@
 // Imports ==========================================================
 
 import type * as E from '../events.js'
+import * as helpers from '../handler_helpers.js'
 
 // Handlers =========================================================
-
-// ==================================================================
-//                              MISC
-// ==================================================================
-
 
 /**
  * Creates a basic callback-based event handler
@@ -58,8 +54,8 @@ export function group<Event extends E.SoybeanEvent = E.SoybeanEvent>(callbacks: 
 // ==================================================================
 
 /**
- * "wait" creates a handler that exists specifically to create
- * time gaps in execution of handler groups.
+ * Creates a handler that exists specifically to create
+ * time gaps in execution of grouped handlers.
  */
 export function wait<Event extends E.SoybeanEvent = E.SoybeanEvent>(time?: number): E.EventHandler<Event> {
     return () => new Promise<null | Error>(end => {
@@ -67,7 +63,22 @@ export function wait<Event extends E.SoybeanEvent = E.SoybeanEvent>(time?: numbe
     })
 }
 
+// ==================================================================
 
-// ==================================================================
-//                              SHELL
-// ==================================================================
+/**
+ * Sets a variable on the event object inside a grouped handler.
+ * ```javascript
+ * // Example
+ * handlers.group([
+ *     handlers.set('start', Date.now()),
+ *     handlers.wait(1000),
+ *     handlers.handle(e => console.log(`Done in ${Date.now() - e.get('start')}ms`))
+ * ])
+ * ```
+ */
+export function set<Event extends E.SoybeanEvent = E.SoybeanEvent>(itemName: string, data: any): E.EventHandler<Event> {
+    return async function(e) {
+        e.set(itemName, data)
+        return null
+    }
+}
