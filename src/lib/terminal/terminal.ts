@@ -20,9 +20,9 @@ export default class Terminal {
     /** Displays an exit message for processes and tasks */
     public static EXIT  = (...msg: string[]) => console.log(`${c.red('EXIT')} ${msg.join(' ')}`)
     /** Displays an information message when a task is being executed. */
-    public static TASK  = (...msg: string[]) => console.log(`${c.green('TASK')} ${c.grey(msg.join(' '))}`)
+    public static ROUTINE = (...msg: string[]) => console.log(`${c.green('ROUTINE')} ${c.grey(msg.join(' '))}`)
     /** Displays an information message when a command handler is being called. */
-    public static CMD  = (...msg: string[]) => console.log(`${c.green('CMD')} ${c.grey(msg.join(' '))}`)
+    public static CMD  = (...msg: string[]) => console.log(`${c.cyan('CMD')} ${c.grey(msg.join(' '))}`)
 
     public static EXIT_HARD = (...msg: string[]) => { console.log(`${c.red('EXIT')} ${msg.join(' ')}`); process.exit() }
     /** 

@@ -1,13 +1,16 @@
 
 // Imports ==========================================================
 
+import c from 'chalk'
+
 import type { SoybeanConfig } from "./types.js"
 
 import ProcessManager from "./process/process_mgr.js"
 import Terminal from "./terminal/terminal.js"
 import LiveTerminal from "./terminal/liveterminal.js"
-import { TerminalEvent } from "./events/events.js"
+import { LaunchEvent, TerminalEvent } from "./events/events.js"
 import commands from "./terminal/liveterminal_commands.js"
+
 
 // Exports ==========================================================
 
@@ -31,8 +34,29 @@ export default class Program {
 
     public async start(cwd: string) {
         this.cwd = cwd
+        await this._runLaunchRoutines()
         await this._spawnChildProcesses()
         await this._setupTerminal()
+    }
+    
+    private async _runLaunchRoutines() {
+
+        if (this.config.routines && this.config.routines.launch)
+        for (let i = 0; i < this.config.routines.launch.length; i++) {
+
+            Terminal.ROUTINE(c.white(`Launch #${i}`))
+
+            const handler = this.config.routines.launch[i]
+            const event = new LaunchEvent()
+            const error = await handler(event)
+
+            if (error) {
+                Terminal.ERROR('An error was encountered while performing operation:', error)
+                process.exit(-1)
+            }
+            
+        }
+
     }
 
     private async _spawnChildProcesses() {

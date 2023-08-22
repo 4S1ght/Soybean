@@ -1,6 +1,6 @@
 
 /** Event types used across the map */
-export type EventType = 'event' | 'terminal' | 'task'
+export type EventType = 'event' | 'terminal' | 'launch'
 
 interface Terminal {
     argvRaw: string
@@ -100,6 +100,13 @@ export class TerminalEvent extends SoybeanEvent {
         super()
         this.terminal.argv = argv
         this.terminal.argvRaw = argv.join(" ")
+    }
+}
+
+export class LaunchEvent extends SoybeanEvent {
+    public source: 'launch' = "launch"
+    constructor() {
+        super()
     }
 }
 

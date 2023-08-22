@@ -28,7 +28,7 @@ export function toCWDRelative(p: string) {
  */
 export function getLoggerType(eventSource: E.SoybeanEvent['source']) {
     switch (eventSource) {
-        case 'task':        return Terminal.TASK
+        case 'launch':      return Terminal.ROUTINE
         case 'terminal':    return Terminal.CMD
         default:            return Terminal.INFO
     }
