@@ -43,7 +43,8 @@ export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: 
  * 
  * Alias for `fs.readFile`
  */
-export function readdir<Event extends E.SoybeanEvent>(path: string | Symbol, saveTo: string, options?: FSReadDirOptions): E.EventHandler<Event> {
+export function readdir<Event extends E.SoybeanEvent>
+    (path: string | Symbol, saveTo: string, options?: FSReadDirOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)
@@ -85,7 +86,8 @@ export function rmdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: 
  *
  * Alias for `fs.mkDir`
  */
-export function rm<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: string | Symbol, options?: FSRmOptions): E.EventHandler<Event> {
+export function rm<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (path: string | Symbol, options?: FSRmOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)
@@ -106,7 +108,8 @@ export function rm<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: string |
  * 
  * Alias for `fs.readFile`
  */
-export function readFile<Event extends E.SoybeanEvent>(file: string | Symbol, saveTo: string, options?: FSReadFileOptions): E.EventHandler<Event> {
+export function readFile<Event extends E.SoybeanEvent>
+    (file: string | Symbol, saveTo: string, options?: FSReadFileOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, file)
@@ -128,7 +131,8 @@ export function readFile<Event extends E.SoybeanEvent>(file: string | Symbol, sa
  *
  * Alias for `fs.mkDir`
  */
-export function writeFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(file: string | Symbol, content: FSWriteFileData | Symbol, options?: FSWriteFileOptions): E.EventHandler<Event> {
+export function writeFile<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (file: string | Symbol, content: FSWriteFileData | Symbol, options?: FSWriteFileOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const fileTarget = helpers.getStoredValue(e, file)
@@ -150,7 +154,8 @@ export function writeFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(file: s
  *
  * Alias for `fs.mkDir`
  */
-export function copyFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(src: string | Symbol, dest: string | Symbol, mode?: number): E.EventHandler<Event> {
+export function copyFile<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (src: string | Symbol, dest: string | Symbol, mode?: number): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const srcTarget = helpers.getStoredValue(e, src)
@@ -173,7 +178,8 @@ export function copyFile<Event extends E.SoybeanEvent = E.SoybeanEvent>(src: str
  *
  * Alias for `fs.chmod`
  */
-export function chmod<Event extends E.SoybeanEvent = E.SoybeanEvent>(path: string | Symbol, mode: string|number): E.EventHandler<Event> {
+export function chmod<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (path: string | Symbol, mode: string|number): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, path)

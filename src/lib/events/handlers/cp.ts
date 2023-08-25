@@ -15,6 +15,10 @@ const pmi = () => ProcessManager.getLiveInstance()
 
 // Handlers =========================================================
 
+/**
+ * Kills the child process of a given name.  
+ * Acts similar to the `kl` command.
+ */
 export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
@@ -31,6 +35,10 @@ export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: str
     })
 }
 
+/**
+ * Restarts the child process of a given name.  
+ * Acts similar to the `kl` command.
+ */
 export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
@@ -47,6 +55,10 @@ export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: 
     })
 }
 
+/**
+ * Revives the child process of a given name.  
+ * Acts similar to the `kl` command.
+ */
 export function revive<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {

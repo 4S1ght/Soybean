@@ -20,8 +20,10 @@ function extractArgv(argv: string | string[]): [string, string[]] {
 }
 
 /**
- * Creates a child process when called.
- * This does NOT create a new child process that is manageable the same way the `cp` object allows to configure.
+ * Creates a child process when called.  
+ * This does **not** create a new child process that is manageable the same way 
+ * as child processes configured through the `cp` object, instead lets you spawn 
+ * a quick shell process, like a TypeScript compiler, Git's push/pull actions, etc.
  */
 export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: string | string[], settings: ExecOptions = {}): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(end => {

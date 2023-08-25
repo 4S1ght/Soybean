@@ -31,8 +31,6 @@ export function handle <Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = an
 
 }
 
-// ==================================================================
-
 /**
  * Creates an event handler group. This is useful when a single event,
  * command or task should perform multiple actions in series.
@@ -55,8 +53,6 @@ export function group<Event extends E.SoybeanEvent = E.SoybeanEvent>
 
 }
 
-// ==================================================================
-
 /**
  * Creates a handler that exists specifically to create
  * time gaps in execution of grouped handlers.
@@ -66,8 +62,6 @@ export function wait<Event extends E.SoybeanEvent = E.SoybeanEvent>(time?: numbe
         setTimeout(() => end(null), time)
     })
 }
-
-// ==================================================================
 
 /**
  * Sets a variable on the event object inside a grouped handler.
@@ -87,11 +81,9 @@ export function set<Event extends E.SoybeanEvent = E.SoybeanEvent>(itemName: str
     }
 }
 
-// ==================================================================
-
 /**
  * Updates a variable on the event object inside a grouped handler.  
- * **Note:** The updated variable must be set before updating, otherwise the value passed to the 
+ * **Note:** The variable must be set before updating, otherwise the value passed to the 
  * callback will be `undefined`. This can be done with many event handlers, such as the `set` handler.
  * ```javascript
  * // Example
@@ -112,3 +104,4 @@ export function update<Event extends E.SoybeanEvent = E.SoybeanEvent>
     }
 
 }
+
