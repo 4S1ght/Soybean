@@ -4,8 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.3]
+
 ### Added
 - Added launch routines - A list of event handlers to be called upon each launch of Soybean.
+- Added watch routines - A list of event handlers called on file-system events, such as moving or writing to a file.
 - Added `set` handler.
 - Added `update` handler.
 
