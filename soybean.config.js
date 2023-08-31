@@ -9,6 +9,17 @@ export default Soybean({
                 handlers.fs.readFile('./package.json', 'package'),
                 handlers.handle(e => console.log(e.get('package').toString()))
             ])
+        ],
+        watch: [ 
+            {
+                file: './soybean.config.js',
+                options: { rateLimiter: 1500 },
+                handle: handlers.group([
+                    handlers.fs.mkdir('./test'),
+                    handlers.fs.copyFile('./soybean.config.js', './test/soybean.config.js'),
+                    handlers.cp.restart('http')
+                ])
+            } 
         ]
     },
     cp: {

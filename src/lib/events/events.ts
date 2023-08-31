@@ -1,32 +1,38 @@
 
+import type FS from 'fs'
+
 /** Event types used across the map */
-export type EventType = 'event' | 'terminal' | 'launch'
+export type EventType = 'event' | 'terminal' | 'launch' | 'watcher'
 
 interface Terminal {
     argvRaw: string
     argv: string[]
+}
+interface Watch {
+    filename: string | null
+    event: string
 }
 
 // Events ===========================================================
 
 export class SoybeanEvent {
 
-    /** 
-     * The event source specifies from where the event had originated from. 
-    */
+    /** The event source specifies from where the event had originated from. */
     public source: EventType = 'event'
 
-    /** 
-     * Contains parameters passed from a live terminal. 
-     */
+    /** Contains parameters passed from a live terminal. */
     public terminal: Terminal = {
         argvRaw: "",
         argv: []
     }
 
-    /**
-     * Stores data shared between grouped event handlers.
-     */
+    /** Contains information related to watch events. */
+    public watch: Watch = {
+        filename: null,
+        event: ""
+    }
+
+    /** Stores data shared between grouped event handlers. */
     protected data: Map<string, any> = new Map()
 
     /**
@@ -107,6 +113,15 @@ export class LaunchEvent extends SoybeanEvent {
     public source: 'launch' = "launch"
     constructor() {
         super()
+    }
+}
+
+export class WatchEvent extends SoybeanEvent {
+    public source: 'watcher' = "watcher"
+    constructor(eventType: FS.WatchEventType, filename: string | null) {
+        super()
+        this.watch.event = eventType
+        this.watch.filename = filename
     }
 }
 

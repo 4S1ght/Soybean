@@ -1,7 +1,8 @@
 
-import z, { union, literal, string, number, boolean, array, record } from 'zod'
+import z, { union, literal, string, number, boolean, array, record, object } from 'zod'
 import type cp from 'child_process'
 import type { EventHandler, TerminalEvent, LaunchEvent } from './events/events.js'
+import type FS from 'fs'
 
 // ==================================================================
 //                       TYPE EQUALITY GUARDS
@@ -19,10 +20,26 @@ assert<TypeEqualityGuard<{}, {}>>()
 export interface Routines {
     /** Launch routines configuration. */
     launch?: Array<EventHandler<LaunchEvent>>
+    /** Watch routines configuration. */
+    watch?: Array<{
+        file: string
+        handle: EventHandler
+        options?: FS.WatchOptions & {
+            /**
+             * @default 500
+             */
+            rateLimiter?: number
+        }
+    }>
 }
 
 export const ZRoutines = z.object({
-    launch: array(z.function()).optional()
+    launch: array(z.function()).optional(),
+    watch: array(object({
+        file: string(),
+        handle: z.function(),
+        options: z.any().optional()
+    })).optional()
 })
 
 // ==================================================================

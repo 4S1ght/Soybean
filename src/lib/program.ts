@@ -1,6 +1,7 @@
 
 // Imports ==========================================================
 
+import fs from 'fs'
 import c from 'chalk'
 
 import type { SoybeanConfig } from "./types.js"
@@ -8,8 +9,22 @@ import type { SoybeanConfig } from "./types.js"
 import ProcessManager from "./process/process_mgr.js"
 import Terminal from "./terminal/terminal.js"
 import LiveTerminal from "./terminal/liveterminal.js"
-import { LaunchEvent, TerminalEvent } from "./events/events.js"
+import { LaunchEvent, TerminalEvent, WatchEvent } from "./events/events.js"
 import commands from "./terminal/liveterminal_commands.js"
+
+// Helpers ==========================================================
+
+const createRateLimiter = (time: number) => {
+    let lastRun = 0
+    function executor(callback: Function) {
+        const now = Date.now()
+        if (now > lastRun + time) {
+            lastRun = now
+            callback()
+        }
+    }
+    return executor
+}
 
 
 // Exports ==========================================================
@@ -34,11 +49,35 @@ export default class Program {
 
     public async start(cwd: string) {
         this.cwd = cwd
+        await this._runWatchRoutines()
         await this._runLaunchRoutines()
         await this._spawnChildProcesses()
         await this._setupTerminal()
     }
-    
+
+    private async _runWatchRoutines() {
+
+        if (this.config.routines && this.config.routines.watch)
+        for (let i = 0; i < this.config.routines.watch.length; i++) {
+
+            const routine = this.config.routines.watch[i]
+            const rate = routine.options && routine.options.rateLimiter ? routine.options.rateLimiter : 500
+            const limiter = createRateLimiter(rate)
+
+            fs.watch(routine.file, routine.options, (eventType, filename) => {
+                limiter(async () => {
+                    Terminal.ROUTINE(c.white(`Watch "${routine.file}"`))
+                    const event = new WatchEvent(eventType, filename)
+                    const handler = routine.handle
+                    const error = await handler(event)
+                    if (error) Terminal.ERROR('An error was encountered while performing operation:', error as Error)
+                })
+            })
+            
+        }
+
+    }
+
     private async _runLaunchRoutines() {
 
         if (this.config.routines && this.config.routines.launch)
