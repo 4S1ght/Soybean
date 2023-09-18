@@ -7,23 +7,26 @@ export default Soybean({
         launch: [
             handlers.group([
                 handlers.fs.readFile('./package.json', 'package'),
-                handlers.handle(e => console.log(e.get('package').toString()))
+                handlers.json.parse('package', 'package', (t, k, v) => typeof k === 'string' ? "#-"+k : k),
+                handlers.handle(e => console.log('package.version:', e.get('package').version))
             ])
         ],
         watch: [ 
             {
-                file: './soybean.config.js',
+                file: './',
                 options: { rateLimiter: 1500 },
                 handle: handlers.group([
+                    handlers.handle(e => e.set('file', e.watch.filename)),
                     handlers.fs.mkdir('./test'),
                     handlers.fs.copyFile('./soybean.config.js', './test/soybean.config.js'),
-                    handlers.cp.restart('http')
+                    handlers.cp.restart('http'),
+                    handlers.handle(e => console.log(e))
                 ])
             } 
         ]
     },
     cp: {
-        http: {
+        http: { 
             command: ['http-server'],
             cwd: './',
             stdout: 'none'
