@@ -130,7 +130,7 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
         }
         else {
-            Terminal.error(`Command "${e.terminal.argv[0]} does not exist.`)
+            Terminal.error(`Command "${e.terminal.argv[0]}" does not exist.`)
         }
 
     }, {
