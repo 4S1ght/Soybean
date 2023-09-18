@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- `event.stopPropagation` function allowing to half the event inside a group handler.
+
 ### Fixed
 - Fixed a typo in the error message shown from the help command when the user tries to show details about a non-existent command.
 

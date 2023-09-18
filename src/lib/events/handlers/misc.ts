@@ -8,12 +8,22 @@
 import type * as E from '../events.js'
 import * as helpers from '../handler_helpers.js'
 
+// Types ============================================================
+
+export interface GroupEvent extends E.SoybeanEvent {
+    /** 
+     * Stops event propagation inside the event group.  
+     * No further event handlers in the event group will be called.
+    */
+    stopPropagation(): void
+}
+
 // Handlers =========================================================
 
 /**
  * Creates a basic callback-based event handler
  */
-export function handle <Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = any>
+export function handle<Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = any>
     (callback: E.EventCallback<Event>, meta?: Meta): E.EventHandler<Event, Meta> {
 
     const handler: E.EventHandler<Event, Meta> = async function(e) {
@@ -35,20 +45,26 @@ export function handle <Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = an
  * Creates an event handler group. This is useful when a single event,
  * command or task should perform multiple actions in series.
  */
-export function group<Event extends E.SoybeanEvent = E.SoybeanEvent>
-    (callbacks: E.EventHandler<Event>[]): E.EventHandler<Event> {
+export function group<Event extends GroupEvent = GroupEvent>
+    (callbacks: E.EventHandler<GroupEvent>[]): E.EventHandler<Event> {
 
     return async function(e) {
+
+        let eventStopped = false
+        e.stopPropagation = () => eventStopped = true
+
         try {
             for (let i = 0; i < callbacks.length; i++) {
                 const error = await callbacks[i](e)
                 if (error) throw error
+                if (eventStopped) break
             }
             return null
         }
         catch (error) {
             return error as Error
         }
+
     }
 
 }
