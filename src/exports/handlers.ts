@@ -6,5 +6,6 @@ export default {
     shell: h.shell,
     fs:    h.fs,
     cp:    h.cp,
-    json:  h.json
+    json:  h.json,
+    net:   h.net
 }
