@@ -50,7 +50,7 @@ export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string
  * Reads out an object or an array saved on the event object under the name specified by the `key`
  * parameter and updates it with the stringified value.
  *
- * Alias for `JSON.parse`
+ * Alias for `JSON.stringify`
  */
 export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, replacer?: Replacer): E.EventHandler<Event>
 export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveTo?: string, replacer?: Replacer): E.EventHandler<Event>
