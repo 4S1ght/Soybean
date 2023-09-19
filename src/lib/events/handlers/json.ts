@@ -4,9 +4,6 @@
 import * as helpers from '../handler_helpers.js'
 import type * as E from '../events.js'
 
-import path from 'path'
-import fsp from 'fs/promises'
-
 // Types ============================================================
 
 type Reviver = Parameters<typeof JSON.parse>["1"]
