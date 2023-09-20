@@ -34,6 +34,9 @@
         "url": "https://github.com/4S1ght/Soybean/issues"
     },
     "homepage": "https://github.com/4S1ght/Soybean#readme",
+    "keywords": [
+        "soybean", "automation", "cli"
+    ],
     "devDependencies": {
         "@types/node": "^20.4.5"
     },
