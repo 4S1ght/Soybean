@@ -23,21 +23,26 @@ interface Package {
 program
     .name(__package.name)
     .version(`Soybean ${__package.version}`, `-v, --version`)
-    .description(__package.description)      
+    .description(__package.description)
 
 program
     .command("run [config-file]")
     .description('Initialize soybean with specified config file')
+    .allowUnknownOption()
     .action(async (givenLocation: string = '') => {
         
         const [found, actualLocation, relativeLocation] = (function() {
 
             const CNF_FILES = [ 'soybean.config.js' ]
 
+            // Set givenLocation to the default config file name if it is 
+            // an optional parameter, such as --experimental-fetch.
+            if (/--.+/.test(givenLocation)) givenLocation = CNF_FILES[0]
+
             // Check whether a file exists
             const exists = (file: string) => {
                 try   { return (fs.statSync(file)).isFile() } 
-                catch { return false                           }
+                catch { return false }
             }
         
             let isAbs = path.isAbsolute(givenLocation)
@@ -53,6 +58,7 @@ program
                 }
             }
         
+            console.log(exists(givenLocation), givenLocation, '')
             return [exists(givenLocation), givenLocation, '']
 
         })()
