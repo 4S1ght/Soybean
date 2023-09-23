@@ -8,16 +8,6 @@
 import type * as E from '../events.js'
 import * as helpers from '../handler_helpers.js'
 
-// Types ============================================================
-
-export interface GroupEvent extends E.SoybeanEvent {
-    /** 
-     * Stops event propagation inside the event group.  
-     * No further event handlers in the event group will be called.
-    */
-    stopPropagation(): void
-}
-
 // Handlers =========================================================
 
 /**
@@ -41,12 +31,21 @@ export function handle<Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = any
 
 }
 
+// ==================================================================
+
+export interface GroupEvent extends E.SoybeanEvent {
+    /** 
+     * Stops event propagation inside the event group.  
+     * No further event handlers in the event group will be called.
+    */
+    stopPropagation(): void
+}
 /**
  * Creates an event handler group. This is useful when a single event,
  * command or task should perform multiple actions in series.
  */
 export function group<Event extends GroupEvent = GroupEvent>
-    (callbacks: E.EventHandler<GroupEvent>[]): E.EventHandler<Event> {
+    (callbacks: E.EventHandler<Event>[]): E.EventHandler<Event> {
 
     return async function(e) {
 
@@ -69,6 +68,8 @@ export function group<Event extends GroupEvent = GroupEvent>
 
 }
 
+// ==================================================================
+
 /**
  * Creates a handler that exists specifically to create
  * time gaps in execution of grouped handlers.
@@ -78,6 +79,8 @@ export function wait<Event extends E.SoybeanEvent = E.SoybeanEvent>(time?: numbe
         setTimeout(() => end(null), time)
     })
 }
+
+// ==================================================================
 
 /**
  * Sets a variable on the event object inside a grouped handler.
@@ -96,6 +99,8 @@ export function set<Event extends E.SoybeanEvent = E.SoybeanEvent>(itemName: str
         return null
     }
 }
+
+// ==================================================================
 
 /**
  * Updates a variable on the event object inside a grouped handler.  
