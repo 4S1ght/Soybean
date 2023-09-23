@@ -8,10 +8,14 @@ All notable changes to this project will be documented in this file.
 - Added `event.stopPropagation` function allowing to half the event inside a group handler.
 - Added `json.parse` handler.
 - Added `json.stringify` handler.
-- Added `net.fetch` handler.
+- Added `net.fetch` handler.s
 
 ### Fixed
 - Fixed a typo in the error message shown from the help command when the user tries to show details about a non-existent command.
+- Fixed `soybean run` not being able to process arbitrary node arguments such as `--experimental-fetch` without specifying the configuration file.
+
+### Changed
+- Set Node engine to 18.x.x for future releases.
 
 ## [0.1.3]
 
