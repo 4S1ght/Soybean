@@ -126,3 +126,131 @@ export function update<Event extends E.SoybeanEvent = E.SoybeanEvent>
 
 }
 
+// ==================================================================
+
+export interface ForEventExtras {
+    /**
+     *  Breaks a loop inside a `forEach`, `forIn` or `forOf` event handler..
+     */
+    break(): void
+}
+
+/**
+ * Executes an event handler inside a `for` loop and automatically sets `array`, `value` and `index` 
+ * event variables.
+ * ```js
+ * // Example
+ * handlers.forEach(['hello', 'world', '!'], handlers.handle(e => {
+ *    console.log(`Item "${e.get('value')}" at index "${e.get('index')}"`)
+ * }))
+ * // Output:
+ * // 0: "hello"
+ * // 1: "world"
+ * // 2: "!"
+ * ```
+ */
+export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent, Iterable extends Array<any> = Array<any>>
+    (iterable: Iterable|Symbol, handler: E.EventHandler<Event & ForEventExtras>): E.EventHandler<Event & ForEventExtras> {
+
+    return async (event) => {
+        try {
+
+            let broken = false    
+            event.break = () => { broken = true }
+
+            iterable = helpers.getStoredValue(event, iterable)
+
+            for (let i = 0; i < iterable.length; i++) {
+                event.set('array', iterable)
+                event.set('index', i)
+                event.set('value', iterable[i])
+                const error = await handler(event)
+                if (error) return error as Error
+                if (broken) return null
+            }
+
+            return null
+        } 
+        catch (error) {
+            return error as Error    
+        }
+    }
+
+}
+
+// ==================================================================
+
+export interface ForOfIterable {
+    [Symbol.iterator](): IterableIterator<any>
+}
+
+/**
+ * Executes an event handler inside a `for of` loop and automatically sets `object` and `value`` 
+ * event variables.
+ * ```js
+ * // Example
+ * handlers.forOf(someMap, handlers.handle(e => {
+ *    console.log(`A map's item is: "${e.get('value')}"`)
+ * }))
+ * ```
+ */
+export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: ForOfIterable|Symbol, handler: E.EventHandler<Event>): E.EventHandler<Event & ForEventExtras> {
+
+    return async (event) => {
+        try {
+
+            let broken = false    
+            event.break = () => { broken = true }
+
+            iterable = helpers.getStoredValue(event, iterable)
+
+            for (const iterator of iterable) {
+                event.set('object', iterable)
+                event.set('value', iterator)
+                const error = await handler(event)
+                if (error) return error as Error
+                if (broken) return null
+            }
+
+            return null
+        } 
+        catch (error) {
+            return error as Error    
+        }
+    }
+
+}
+
+// ==================================================================
+
+export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Record<any, any>|Symbol, handler: E.EventHandler<Event>): E.EventHandler<Event & ForEventExtras> {
+
+    return async (event) => {
+        try {
+
+            let broken = false    
+            event.break = () => { broken = true }
+
+            iterable = helpers.getStoredValue(event, iterable)
+
+            for (const key in iterable) {
+                if (Object.prototype.hasOwnProperty.call(iterable, key)) {
+                    event.set('object', iterable)
+                    event.set('key', key)
+                    event.set('value', iterable[key])
+                    const error = await handler(event)
+                    if (error) return error as Error
+                    if (broken) return null
+                }
+            }
+
+            return null
+        } 
+        catch (error) {
+            return error as Error    
+        }
+    }
+
+}

@@ -7,9 +7,9 @@ import type * as E from "./events.js"
  * Event handlers can pass information between them via the event object.
  * This method helps them easily extract information without any complicated logic and custom handlers
  */
-export function getStoredValue(event: E.SoybeanEvent, value: any) {
+export function getStoredValue<ValueType>(event: E.SoybeanEvent, value: ValueType): Exclude<ValueType, Symbol> {
     return typeof value === 'symbol'
-        ? event.get(value.description!)
+        ? event.get(value.description!) 
         : value
 }
 
