@@ -128,11 +128,25 @@ export function update<Event extends E.SoybeanEvent = E.SoybeanEvent>
 
 // ==================================================================
 
-export interface ForEventExtras {
-    /**
-     *  Breaks a loop inside a `forEach`, `forIn` or `forOf` event handler..
-     */
-    break(): void
+export interface ForLoopEvent {
+    loopLabelStack: string[]
+    break(loop?: string): void
+    broken: string | boolean | undefined
+}
+
+function prepareLoopEvent(e: ForLoopEvent, loopID?: string) {
+
+    if (!e.loopLabelStack) e.loopLabelStack = []
+    if (!e.break) e.break = (loop?: string) => { e.broken = loop || true }
+    
+    function generateUniqueID(): string {
+        const id = String(Math.random() * 1000000).substring(0, 3)
+        return e.loopLabelStack.includes(id) ? generateUniqueID() : id
+    }
+
+    const id = loopID || generateUniqueID()
+    e.loopLabelStack.push(id)
+    return id
 }
 
 /**
@@ -149,30 +163,49 @@ export interface ForEventExtras {
  * // 2: "!"
  * ```
  */
-export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent, Iterable extends Array<any> = Array<any>>
-    (iterable: Iterable|Symbol, handler: E.EventHandler<Event & ForEventExtras>): E.EventHandler<Event & ForEventExtras> {
+
+export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Array<any>|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+
+export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Array<any>|Symbol, id: string, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+
+export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Array<any>|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
     return async (event) => {
         try {
 
-            let broken = false    
-            event.break = () => { broken = true }
+            const $id = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
+            const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
+            const $iterable = helpers.getStoredValue(event, iterable)
 
-            iterable = helpers.getStoredValue(event, iterable)
+            for (let i = 0; i < $iterable.length; i++) {
 
-            for (let i = 0; i < iterable.length; i++) {
                 event.set('array', iterable)
                 event.set('index', i)
-                event.set('value', iterable[i])
-                const error = await handler(event)
+                event.set('value', $iterable[i])
+                const error = await $handler(event)
                 if (error) return error as Error
-                if (broken) return null
+
+                if (event.broken === true) {
+                    event.broken = undefined
+                    break
+                }
+                if (typeof event.broken === 'string') {
+                    const brokenIndex = event.loopLabelStack.indexOf(event.broken)
+                    const thisIndex = event.loopLabelStack.indexOf($id)
+                    if (thisIndex === brokenIndex) event.broken = undefined
+                    if (thisIndex >= brokenIndex) break
+                }
+
             }
 
+            event.loopLabelStack.pop()
             return null
         } 
         catch (error) {
-            return error as Error    
+            return error as Error
         }
     }
 
@@ -195,13 +228,13 @@ export interface ForOfIterable {
  * ```
  */
 export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
-    (iterable: ForOfIterable|Symbol, handler: E.EventHandler<Event>): E.EventHandler<Event & ForEventExtras> {
+    (iterable: ForOfIterable|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
     return async (event) => {
         try {
 
             let broken = false    
-            event.break = () => { broken = true }
+            // event.break = () => { broken = true }
 
             iterable = helpers.getStoredValue(event, iterable)
 
@@ -225,13 +258,13 @@ export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
 // ==================================================================
 
 export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
-    (iterable: Record<any, any>|Symbol, handler: E.EventHandler<Event>): E.EventHandler<Event & ForEventExtras> {
+    (iterable: Record<any, any>|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
     return async (event) => {
         try {
 
             let broken = false    
-            event.break = () => { broken = true }
+            // event.break = () => { broken = true }
 
             iterable = helpers.getStoredValue(event, iterable)
 
