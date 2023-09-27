@@ -68,6 +68,23 @@ export class SoybeanEvent {
     }
 
     /**
+     * `Event.del` lets you delete a piece of data saved on the event object.  
+     * See `Event.del` documentation for more details.
+     * ```javascript
+     * // Example
+     * group([
+     *     handle(e => e.set("a", "b"))
+     *     handle(e => e.del("a"))
+     *     // Log the data to the console
+     *     handle(e => console.log(g.get("a"))) // => undefined
+     * ])
+     * ```
+     */
+    public del(itemName: string) {
+        return this.data.delete(itemName)
+    }
+
+    /**
      * `Event.update` lets you retrieve a piece of data saved on the event object and then process it.  
      * The data is processed in the callback function which **must** return a reference the modified information.
      * ```javascript

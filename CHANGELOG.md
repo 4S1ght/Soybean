@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Added `forEach` handler.
 - Added `forIn` handler.
 - Added `forOf` handler.
+- Added `e.del()` method for deleting information stored on the event object.
 
 ### Fixed
 - Fixed a typo in the error message shown from the help command when the user tries to show details about a non-existent command.
