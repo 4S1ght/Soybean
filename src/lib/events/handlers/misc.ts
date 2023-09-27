@@ -33,7 +33,7 @@ export function handle<Event extends E.SoybeanEvent = E.SoybeanEvent, Meta = any
 
 // ==================================================================
 
-export interface GroupEvent extends E.SoybeanEvent {
+export interface GroupEvent {
     /** 
      * Stops event propagation inside the event group.  
      * No further event handlers in the event group will be called.
@@ -44,8 +44,8 @@ export interface GroupEvent extends E.SoybeanEvent {
  * Creates an event handler group. This is useful when a single event,
  * command or task should perform multiple actions in series.
  */
-export function group<Event extends GroupEvent = GroupEvent>
-    (callbacks: E.EventHandler<Event>[]): E.EventHandler<Event> {
+export function group<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (callbacks: E.EventHandler<Event & GroupEvent>[]): E.EventHandler<Event & GroupEvent> {
 
     return async function(e) {
 
@@ -131,10 +131,11 @@ export function update<Event extends E.SoybeanEvent = E.SoybeanEvent>
 export interface ForLoopEvent {
     loopLabelStack: string[]
     break(loop?: string): void
+
     broken: string | boolean | undefined
 }
 
-function prepareLoopEvent(e: ForLoopEvent, loopID?: string) {
+function prepareLoopEvent(e: ForLoopEvent, loopID?: string): [string, boolean] {
 
     if (!e.loopLabelStack) e.loopLabelStack = []
     if (!e.break) e.break = (loop?: string) => { e.broken = loop || true }
@@ -146,7 +147,7 @@ function prepareLoopEvent(e: ForLoopEvent, loopID?: string) {
 
     const id = loopID || generateUniqueID()
     e.loopLabelStack.push(id)
-    return id
+    return [id, !!loopID]
 }
 
 /**
@@ -176,17 +177,25 @@ export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
     return async (event) => {
         try {
 
-            const $id = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
+            const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
             const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
             const $iterable = helpers.getStoredValue(event, iterable)
+            const $getFieldName = (field: string) => $customID ? `${$id}-${field}` : field
+
+            function del() {
+                event.del($getFieldName('array'))
+                event.del($getFieldName('index'))
+                event.del($getFieldName('value'))
+            }
 
             for (let i = 0; i < $iterable.length; i++) {
 
-                event.set('array', iterable)
-                event.set('index', i)
-                event.set('value', $iterable[i])
+                event.set($getFieldName('array'), iterable)
+                event.set($getFieldName('index'), i)
+                event.set($getFieldName('value'), $iterable[i])
+
                 const error = await $handler(event)
-                if (error) return error as Error
+                if (error) { del(); return error as Error }
 
                 if (event.broken === true) {
                     event.broken = undefined
@@ -202,7 +211,9 @@ export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
             }
 
             event.loopLabelStack.pop()
+            del()
             return null
+
         } 
         catch (error) {
             return error as Error
@@ -227,26 +238,54 @@ export interface ForOfIterable {
  * }))
  * ```
  */
+
 export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
-    (iterable: ForOfIterable|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
+    (iterable: ForOfIterable|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+    
+export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: ForOfIterable|Symbol, id: string, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+    
+export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: ForOfIterable|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
     return async (event) => {
         try {
 
-            let broken = false    
-            // event.break = () => { broken = true }
+            const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
+            const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
+            const $iterable = helpers.getStoredValue(event, iterable)
+            const $getFieldName = (field: string) => $customID ? `${$id}-${field}` : field
 
-            iterable = helpers.getStoredValue(event, iterable)
-
-            for (const iterator of iterable) {
-                event.set('object', iterable)
-                event.set('value', iterator)
-                const error = await handler(event)
-                if (error) return error as Error
-                if (broken) return null
+            function del() {
+                event.del($getFieldName('object'))
+                event.del($getFieldName('value'))
             }
 
+            for (const iterator of $iterable) {
+
+                event.set($getFieldName('object'), $iterable)
+                event.set($getFieldName('value'), iterator)
+
+                const error = await $handler(event)
+                if (error) { del(); return error as Error }
+
+                if (event.broken === true) {
+                    event.broken = undefined
+                    break
+                }
+                if (typeof event.broken === 'string') {
+                    const brokenIndex = event.loopLabelStack.indexOf(event.broken)
+                    const thisIndex = event.loopLabelStack.indexOf($id)
+                    if (thisIndex === brokenIndex) event.broken = undefined
+                    if (thisIndex >= brokenIndex) break
+                }
+
+            }
+
+            event.loopLabelStack.pop()
+            del()
             return null
+
         } 
         catch (error) {
             return error as Error    
@@ -258,28 +297,56 @@ export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
 // ==================================================================
 
 export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
-    (iterable: Record<any, any>|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
+    (iterable: Record<any, any>|Symbol, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+
+export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Record<any, any>|Symbol, id: string, handler: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent>
+
+export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (iterable: Record<any, any>|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
     return async (event) => {
         try {
 
-            let broken = false    
-            // event.break = () => { broken = true }
+            const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
+            const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
+            const $iterable = helpers.getStoredValue(event, iterable)
+            const $getFieldName = (field: string) => $customID ? `${$id}-${field}` : field
 
-            iterable = helpers.getStoredValue(event, iterable)
+            function del() {
+                event.del($getFieldName('object'))
+                event.del($getFieldName('key'))
+                event.del($getFieldName('value'))
+            }
 
-            for (const key in iterable) {
+            for (const key in $iterable) {
                 if (Object.prototype.hasOwnProperty.call(iterable, key)) {
-                    event.set('object', iterable)
-                    event.set('key', key)
-                    event.set('value', iterable[key])
-                    const error = await handler(event)
-                    if (error) return error as Error
-                    if (broken) return null
+
+                    event.set($getFieldName('object'), iterable)
+                    event.set($getFieldName('key'), key)
+                    event.set($getFieldName('value'), $iterable[key])
+
+                    const error = await $handler(event)
+                    if (error) { del(); return error as Error }
+
+                    if (event.broken === true) {
+                        event.broken = undefined
+                        break
+                    }
+                    if (typeof event.broken === 'string') {
+                        const brokenIndex = event.loopLabelStack.indexOf(event.broken)
+                        const thisIndex = event.loopLabelStack.indexOf($id)
+                        if (thisIndex === brokenIndex) event.broken = undefined
+                        if (thisIndex >= brokenIndex) break
+                    }
+
                 }
             }
 
+            event.loopLabelStack.pop()
+            del()
             return null
+            
         } 
         catch (error) {
             return error as Error    
