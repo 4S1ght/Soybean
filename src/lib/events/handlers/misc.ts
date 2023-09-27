@@ -129,19 +129,24 @@ export function update<Event extends E.SoybeanEvent = E.SoybeanEvent>
 // ==================================================================
 
 export interface ForLoopEvent {
-    loopLabelStack: string[]
     break(loop?: string): void
-
-    broken: string | boolean | undefined
 }
 
-function prepareLoopEvent(e: ForLoopEvent, loopID?: string): [string, boolean] {
+export interface ForLoopPrivates {
+    broken: string | boolean | undefined
+    loopLabelStack: string[]
+}
+
+
+function prepareLoopEvent(event: ForLoopEvent, loopID?: string): [string, boolean] {
+
+    const e = event as ForLoopEvent & ForLoopPrivates
 
     if (!e.loopLabelStack) e.loopLabelStack = []
     if (!e.break) e.break = (loop?: string) => { e.broken = loop || true }
     
     function generateUniqueID(): string {
-        const id = String(Math.random() * 1000000).substring(0, 3)
+        const id = '#' + String(Math.random() * 1000000).substring(0, 3)
         return e.loopLabelStack.includes(id) ? generateUniqueID() : id
     }
 
@@ -174,9 +179,10 @@ export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
 export function forEach<Event extends E.SoybeanEvent = E.SoybeanEvent>
     (iterable: Array<any>|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
-    return async (event) => {
+    return async (e) => {
         try {
 
+            const event = e as Event & ForLoopEvent & ForLoopPrivates
             const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
             const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
             const $iterable = helpers.getStoredValue(event, iterable)
@@ -248,9 +254,10 @@ export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
 export function forOf<Event extends E.SoybeanEvent = E.SoybeanEvent>
     (iterable: ForOfIterable|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
-    return async (event) => {
+    return async (e) => {
         try {
 
+            const event = e as Event & ForLoopEvent & ForLoopPrivates
             const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
             const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
             const $iterable = helpers.getStoredValue(event, iterable)
@@ -305,9 +312,10 @@ export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
 export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
     (iterable: Record<any, any>|Symbol, idOrHandler: string|E.EventHandler<Event & ForLoopEvent>, handler?: E.EventHandler<Event & ForLoopEvent>): E.EventHandler<Event & ForLoopEvent> {
 
-    return async (event) => {
+    return async (e) => {
         try {
 
+            const event = e as Event & ForLoopEvent & ForLoopPrivates
             const [$id, $customID] = prepareLoopEvent(event, typeof idOrHandler === 'string' ? idOrHandler : undefined)
             const $handler = typeof idOrHandler === 'string' ? handler! : idOrHandler
             const $iterable = helpers.getStoredValue(event, iterable)
@@ -346,7 +354,7 @@ export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
             event.loopLabelStack.pop()
             del()
             return null
-            
+
         } 
         catch (error) {
             return error as Error    
