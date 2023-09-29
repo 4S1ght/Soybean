@@ -18,7 +18,7 @@ export default Soybean({
     },
     terminal: {
         passthroughShell: false,
-        keepHistory: false,
+        keepHistory: 50,
         handlers: {}
     }
 })
