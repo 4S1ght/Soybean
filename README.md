@@ -75,7 +75,7 @@ soybean run <file>
 ```
 
 # Child processes
-Soybean's one of core features is consolidating all your child processes into a single terminal window.
+One of Soybean's core features is consolidating all your child processes into a single terminal window.
 Using the `cp` property in the Soybean config, you can easily set up multiple different instances of compilers, bundlers and different tasks.
 
 ```js
