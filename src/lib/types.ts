@@ -49,7 +49,7 @@ export const ZRoutines = z.object({
 /**
  * Child process configuration.
  */
-export interface SpawnOptions extends Omit<cp.SpawnOptions, 'stdio'> {
+export interface SpawnOptions extends Omit<cp.SpawnOptions, 'stdio' | 'detached'> {
     /** 
      * Shell command that summons a CLI app or child script.
      * ```js
@@ -85,7 +85,8 @@ export const ZSpawnOptions = z.object({
     stdout: union([ literal('all'), z.literal('none') ]).optional(),
     deferNext: number().optional(),
     // Illegal
-    stdio: z.undefined()
+    stdio: z.undefined(),
+    detached: z.undefined()
 })
 
 // ==================================================================
