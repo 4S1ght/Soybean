@@ -1,6 +1,6 @@
 # Soybean
-Soybean is a convenience multi-tool for tedious task automation.
-It lets you set up your compilers, bundlers and the rest of the environment and get to work with a single command.
+Soybean is a convenience multi-tool for automating tedious tasks. 
+It lets you set up your compilers, bundlers and the rest of the environment and get to work with a single command.  
 Write tidy and concise routines executed on a plethora of events, such as a file change or a user-specified command.
 
 # Documentation
@@ -24,7 +24,7 @@ yarn install soybean
 **Note:** Soybean is written in TypeScript from the ground up. No external types module is required.
 
 # Configuration
-Similar Vite or the TS compiler, Soybean is a CLI tool, that allows you to create a boilerplate configuration file like so:
+Similar to Vite or the TS compiler, Soybean is a CLI tool that lets you easily create a boilerplate configuration file:
 
 ```
 soybean init
@@ -69,7 +69,8 @@ export default Soybean({
 })
 ```
 
-After the file configuration file is created you will be able to run soybean with its settings:
+After the configuration file is created you will be able to run soybean with settings specified in the `<file>`.  
+If no file is specified, the program will default to using `config.soybean.js` and show an error message if it's not found.
 ```
 soybean run <file>
 ```
@@ -106,4 +107,4 @@ Soybean({
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
 
-The child process' configuration object accepts the above properties, as well as standard options available for `child_process.spawn()`, with exception of `stdio` and `detached`.
+The child process' configuration object accepts the above properties, as well as standard options available for `child_process.spawn()` such as `shell` or `timeout`, with exception of `stdio` and `detached` which are disabled due to how Soybean functions.
