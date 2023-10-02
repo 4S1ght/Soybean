@@ -104,6 +104,14 @@ Soybean({
 ```
 ROUTINE Launch #1
 ROUTINE spawn "get fetch"
+remote: Enumerating objects: 15, done.
+remote: Counting objects: 100% (13/13), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 7 (delta 3), reused 7 (delta 3), pack-reused 0
+Unpacking objects: 100% (7/7), 1.98 KiB | 144.00 KiB/s, done.
+From github.com:4S1ght/Soybean
+   3fa9b85..7b6bc27  main       -> origin/main
+   880eb0f..564eeb9  docs       -> origin/docs
 ROUTINE spawn finished ("git fetch"), code: 0
 ```
 
