@@ -1,15 +1,21 @@
+
 # Soybean
-Soybean is a convenience multi-tool for automating tedious tasks. 
+Ever needed to manually move or update a file or restart a buggy compiler?  
+Soybean is a convenience multi-tool for automating such tedious tasks.  
 It lets you set up your compilers, bundlers and the rest of the environment and get to work with a single command.  
-Write tidy and concise routines executed on a plethora of events, such as a file change or a user-specified command.
+Write tidy and concise routines executed on a plethora of events, such as a file change, command input or an interval!
 
 # Documentation
 - [Installation](#installation)
 - [Configuration](#configuration)
-    - [Child processes](#child-processes)
+- [Routines](#routines)
+    - [Launch routines](#launch-routines)
+    - [Watch routines](#watch-routines)
+- [Integrated terminal](#integrated-terminal)
+- [Modules](#modules)
+    - [Handlers module](#handlers-module)
 
 # Installation
-Starting out with Soybean is as easy as with any other tool like Vite or Rullup.
 
 Install Soybean with `npm`:
 ```
@@ -21,7 +27,10 @@ With `yarn`:
 yarn install soybean
 ```
 
-**Note:** Soybean is written in TypeScript from the ground up. No external types module is required.
+**Note:** To be able to spawn Soybean from the terminal without using [NPM scripts](https://docs.npmjs.com/cli/v10/using-npm/scripts), you will need to install Soybean globally:
+```
+npm install Soybean --global
+```
 
 # Configuration
 Similar to Vite or the TS compiler, Soybean is a CLI tool that lets you easily create a boilerplate configuration file:
@@ -43,22 +52,13 @@ sb init
 
 The above command will create a new configuration file in the chosen destination.
 ```js
-
 import { Soybean } from 'Soybean'
 import h from 'Soybean/handlers'
 
 export default Soybean({
-    cp: {
-        node: {
-            command: ["node"],
-            cwd: "./",
-            stdout: "all"
-        }
-    },
+    cp: {},
     routines: {
-        launch: [
-            h.handle(() => console.log("Everything set up!"))
-        ],
+        launch: [],
         watch: []
     },
     terminal: {
@@ -75,36 +75,42 @@ If no file is specified, the program will default to using `config.soybean.js` a
 soybean run <file>
 ```
 
-# Child processes
-One of Soybean's core features is consolidating all your child processes into a single terminal window.
-Using the `cp` property in the Soybean config, you can easily set up multiple different instances of compilers, bundlers and different tasks.
+# Routines
+Routines are singular tasks or sets of grouped tasks executed in result of an event, be it a file change,
+time interval or a custom user-defined command. Routines make use of Soybean's [handlers module](#handlers-module) 
+that offers a set easy of quick to implement event handlers.
 
+There are a couple different types of routines executed based on different circumstances:
+- [Launch routines](#launch-routines)
+- [Watch routines](#watch-routines)
+
+## Launch routines
+**Launch routines are executed each time you start Soybean.**  
+This is useful when you need to prepare different aspects of your project each day, like automatically 
+fetching latest changes in the repository or latest binaries from a build server.
+
+An example launch routine like this one would perform a `git fetch` shell command and log the output to the console, like below.
 ```js
 Soybean({
-    cp: {
-        // Specify a child process' name
-        typescript: {
-            // Specify the spawn command
-            command: ["tsc", ''],
-            // And the CWD
-            cwd: "./src" 
-        },
-        // And set up a yet another process
-        static: {
-            command: "http-server",
-            cwd: "./dist" 
-        }
+    routines: {
+        launch: [
+            // Perform "git fetch"
+            handlers.shell.spawn(['git', 'fetch'], {})
+        ]
     }
 })
 ```
 
-## Child process configuration options
+```
+ROUTINE Launch #1
+ROUTINE spawn "get fetch"
+ROUTINE spawn finished ("git fetch"), code: 0
+```
 
-| Property name | Type | Description |
-| ------------- | ---- | ----------- |
-| `command` | `string \| Array<string>` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command, like `tsc` or an `array` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
-| `stdout` | `"all" \| "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
-| `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
-| `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
 
-The child process' configuration object accepts the above properties, as well as standard options available for `child_process.spawn()` such as `shell` or `timeout`, with exception of `stdio` and `detached` which are disabled due to how Soybean functions.
+## Watch routines
+
+
+# Modules
+
+## Handlers module
