@@ -100,9 +100,9 @@ Soybean({
     }
 })
 ```
-
-![Launch routine output](./docs/img/launch_routine.png "Launch routine output")
-
+<p align="center">
+    <img src="./docs/img/launch_routine.png" alt="Launch routine output" title="Launch routine output">
+</p>
 
 ## Watch routines
 
