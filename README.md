@@ -101,19 +101,7 @@ Soybean({
 })
 ```
 
-```
-ROUTINE Launch #1
-ROUTINE spawn "get fetch"
-remote: Enumerating objects: 15, done.
-remote: Counting objects: 100% (13/13), done.
-remote: Compressing objects: 100% (3/3), done.
-remote: Total 7 (delta 3), reused 7 (delta 3), pack-reused 0
-Unpacking objects: 100% (7/7), 1.98 KiB | 144.00 KiB/s, done.
-From github.com:4S1ght/Soybean
-   3fa9b85..7b6bc27  main       -> origin/main
-   880eb0f..564eeb9  docs       -> origin/docs
-ROUTINE spawn finished ("git fetch"), code: 0
-```
+![Launch routine output](./docs/img/launch_routine.png "Launch routine output")
 
 
 ## Watch routines
@@ -122,3 +110,9 @@ ROUTINE spawn finished ("git fetch"), code: 0
 # Modules
 
 ## Handlers module
+
+
+<!-- 
+GIT FETCH LAUNCH ROUTINE SNIPPET
+https://carbon.now.sh/?bg=rgba%280%2C0%2C0%2C0%29&t=one-dark&wt=none&l=auto&width=667.5999997854233&ds=true&dsyoff=20px&dsblur=68px&wc=true&wa=false&pv=56px&ph=56px&ln=false&fl=1&fm=Hack&fs=14px&lh=133%25&si=false&es=2x&wm=false&code=ROUTINE%2520Launch%2520%25231%250AROUTINE%2520spawn%2520%2522get%2520fetch%2522%250Aremote%253A%2520Enumerating%2520objects%253A%252015%252C%2520done.%250Aremote%253A%2520Counting%2520objects%253A%2520100%2525%2520%2813%252F13%29%252C%2520done.%250Aremote%253A%2520Compressing%2520objects%253A%2520100%2525%2520%283%252F3%29%252C%2520done.%250Aremote%253A%2520Total%25207%2520%28delta%25203%29%252C%2520reused%25207%2520%28delta%25203%29%252C%2520pack-reused%25200%250AUnpacking%2520objects%253A%2520100%2525%2520%287%252F7%29%252C%25201.98%2520KiB%2520%257C%2520144.00%2520KiB%252Fs%252C%2520done.%250AFrom%2520github.com%253A4S1ght%252FSoybean%250A%2520%2520%25203fa9b85..7b6bc27%2520%2520main%2520%2520%2520%2520%2520%2520%2520-%253E%2520origin%252Fmain%250A%2520%2520%2520880eb0f..564eeb9%2520%2520docs%2520%2520%2520%2520%2520%2520%2520-%253E%2520origin%252Fdocs%250AROUTINE%2520spawn%2520finished%2520%28%2522git%2520fetch%2522%29%252C%2520code%253A%25200 
+-->
