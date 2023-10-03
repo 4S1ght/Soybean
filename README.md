@@ -95,7 +95,7 @@ Soybean({
     },
 })
 ```
-The above example would spawn and instance of http-server, an [npm package](https://www.npmjs.com/package/http-server) that's a simple static http server.
+The above example would spawn and instance of http-server, an [npm package](https://www.npmjs.com/package/http-server) for serving static resources over HTTP.
 
 <p align="center">
     <img src="./docs/img/cp_spawn_http_server.png" alt="Launch routine output" title="Launch routine output">
