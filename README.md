@@ -78,7 +78,7 @@ soybean run <file>
 # Routines
 Routines are singular tasks or sets of grouped tasks executed in result of an event, be it a file change,
 time interval or a custom user-defined command. Routines make use of Soybean's [handlers module](#handlers-module) 
-that offers a set easy of quick to implement event handlers.
+that offers a set of easy and quick to implement event handlers.
 
 There are a couple different types of routines executed based on different circumstances:
 - [Launch routines](#launch-routines)
@@ -86,10 +86,11 @@ There are a couple different types of routines executed based on different circu
 
 ## Launch routines
 **Launch routines are executed each time you start Soybean.**  
+
 This is useful when you need to prepare different aspects of your project each day, like automatically 
 fetching latest changes in the repository or latest binaries from a build server.
 
-An example launch routine like this one would perform a `git fetch` shell command and log the output to the console, like below.
+The below launch routine would perform a `git fetch` request on each start of a Soybean instance and log the output to the console, as visible in the snippet below.
 ```js
 Soybean({
     routines: {
