@@ -108,6 +108,10 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
             finishedMessage.push(`\n${space(gapCat)}─── Commands ───`)
 
+
+            const pts = Program.getLiveInstance().config.terminal && Program.getLiveInstance().config.terminal?.passthroughShell
+            finishedMessage.push(c.grey(`\n${space(gapCat)}Passthrough shell: `) + `${pts ? c.green(pts) : c.red("disabled")}`)
+
             // Display user-specified handlers if any have been configured.
             if (Program.getLiveInstance().config.terminal)
             if (Program.getLiveInstance().config.terminal?.handlers) {

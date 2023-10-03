@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Added `forOf` handler.
 - Added `e.del()` method for deleting information stored on the event object.
 - Added `soybean init [file]` command that lets the user create a boilerplate configuration file.
+- Added `passthroughShell` setting status to the `help` command output
 
 ### Fixed
 - Fixed a typo in the error message shown from the help command when the user tries to show details about a non-existent command.
