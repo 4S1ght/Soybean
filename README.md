@@ -11,11 +11,10 @@ Write tidy and concise routines executed on a plethora of events, such as a file
 - [Child processes](#child-processes)
     - [Spawn options](#child-process-spawn-options)
 - [Routines](#routines)
-    - [Watch routines](#watch-routines)
     - [Launch routines](#launch-routines)
+    - [Watch routines](#watch-routines)
 - [Integrated terminal](#integrated-terminal)
-- [Modules](#modules)
-    - [Handlers module](#handlers-module)
+- [Event handlers](#event-handlers)
 
 # Installation
 
@@ -41,13 +40,7 @@ Similar to Vite or the TS compiler, Soybean is a CLI tool that lets you easily c
 soybean init
 ```
 
-Or if you would like to specify the path yourself:
-```
-soybean init ./myConfig.js
-```
-
 Alternatively, you can use the shorthand command `sb` instead of `soybean`.
-
 ```
 sb init
 ```
@@ -89,7 +82,7 @@ Soybean({
         // Process name used to reference it elsewhere 
         // in the configuration file
         "my-process": {
-            // The spawn command used
+            // The spawn command
             command: "http-server"
         }
     },
@@ -106,43 +99,19 @@ The child process' configuration object accepts the below properties, as well as
 
 | Property name | Type | Description |
 | ------------- | ---- | ----------- |
-| `command` | `string \| Array<string>` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command keyword, like `tsc` or an `array` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
-| `stdout` | `"all" \| "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
+| `command` | `string, Array<string>` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command keyword, like `tsc` or an `array` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
+| `stdout` | `"all", "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
 
 # Routines
 Routines are singular tasks or sets of grouped tasks executed in result of an event, be it a file change,
-time interval or a custom user-defined command. Routines make use of Soybean's [handlers module](#handlers-module) 
+time interval or a custom user-defined command. Routines make use of Soybean's [event handlers](#event-handlers) 
 that offers a set of easy and quick to implement event handlers.
 
 There are a couple different types of routines executed based on different circumstances:
-- [Watch routines](#watch-routines)
 - [Launch routines](#launch-routines)
-
-## Watch routines
-
-**Watch routines are executed based on file or directory watch events**
-
-Watch routines let you set up file watchers that can automatically detect file changes
-and perform tasks.
-
-The below example shows how you can watch a configuration file for changes and automatically restart a child process that relies on this file for settings and operating parameters.
-
-```js
-Soybean({
-    routines: {
-        watch: [
-            {
-                // Watch the file "config.json"
-                file: './config.json',
-                // Restart "my-server" child process automatically on file change.
-                handle: handlers.cp.restart('my-server')
-            }
-        ]
-    }
-})
-```
+- [Watch routines](#watch-routines)
 
 ## Launch routines
 **Launch routines are executed each time you start Soybean.**  
@@ -165,9 +134,43 @@ Soybean({
     <img src="./docs/img/routine_launch.png" alt="Launch routine output" title="Launch routine output">
 </p>
 
-# Modules
+## Watch routines
 
-## Handlers module
+**Watch routines are executed based on file or directory watch events**
+
+Watch routines let you set up file watchers that can automatically detect file changes
+and perform tasks.
+
+The below example shows how you can watch a configuration file for changes and automatically restart a child process that relies on this file for settings and operating parameters.
+
+```js
+Soybean({
+    routines: {
+        watch: [
+            {
+                // Watch a configuration file 
+                file: './config.json',
+                // Optional settings
+                options: {},
+                // Restart "my-server" child process automatically on file change.
+                handle: handlers.cp.restart('my-server')
+            }
+        ]
+    }
+})
+```
+
+### Watch routines options
+Alongside the required `file` and `handle` properties, watch routines also allow you to specify additional watch options in the `options` object.
+
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+| `rateLimiter` | `number` | `500` | Specifies how much time in milliseconds to wait before another watch event is registered. |
+
+Additionally, native [`fs.watch`](https://nodejs.org/docs/latest/api/fs.html#fswatchfilename-options-listener) options `persistent`, `recursive`, `encoding` and `signal` are also supported. These allow you to use abort signals or create watchers that watch entire directories.
+
+
+# Event handlers
 
 
 <!-- 
