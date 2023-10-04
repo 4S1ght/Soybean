@@ -14,7 +14,8 @@ Write tidy and concise routines executed on a plethora of events, such as a file
     - [Launch routines](#launch-routines)
     - [Watch routines](#watch-routines)
 - [Integrated terminal](#integrated-terminal)
-- [Event handlers](#event-handlers)
+- [Events](#events)
+    - [Event handlers](#event-handlers)
 
 # Installation
 
@@ -170,7 +171,9 @@ Alongside the required `file` and `handle` properties, watch routines also allow
 Additionally, native [`fs.watch`](https://nodejs.org/docs/latest/api/fs.html#fswatchfilename-options-listener) options `persistent`, `recursive`, `encoding` and `signal` are also supported. These allow you to use abort signals or create watchers that watch entire directories.
 
 
-# Event handlers
+# Events
+
+## Event handlers
 
 
 <!-- 
