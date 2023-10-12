@@ -1,17 +1,9 @@
 
 import type FS from 'fs'
+import type { WatchEventType } from 'fs'
 
 /** Event types used across the map */
 export type EventType = 'event' | 'terminal' | 'launch' | 'watcher'
-
-interface Terminal {
-    argvRaw: string
-    argv: string[]
-}
-interface Watch {
-    filename: string | null
-    event: string
-}
 
 // Events ===========================================================
 
@@ -19,18 +11,6 @@ export class SoybeanEvent {
 
     /** The event source specifies from where the event had originated from. */
     public source: EventType = 'event'
-
-    /** Contains parameters passed from a live terminal. */
-    public terminal: Terminal = {
-        argvRaw: "",
-        argv: []
-    }
-
-    /** Contains information related to watch events. */
-    public watch: Watch = {
-        filename: null,
-        event: ""
-    }
 
     /** Stores data shared between grouped event handlers. */
     protected data: Map<string, any> = new Map()
@@ -115,14 +95,25 @@ export class SoybeanEvent {
         const data = this.data.get(itemName)
         this.data.set(itemName, await callback(data))
     }
+    
 }
 
 export class TerminalEvent extends SoybeanEvent {
+    
     public source: 'terminal' = "terminal"
+    public argv: string[]
+    public argvRaw: string
+
     constructor(argv: string[]) {
+
         super()
-        this.terminal.argv = argv
-        this.terminal.argvRaw = argv.join(" ")
+
+        this.argv = argv
+        this.argvRaw = argv.join(" ")
+
+        this.set('argv', argv)
+        this.set('argvRaw', argv.join(" "))
+
     }
 }
 
@@ -134,11 +125,21 @@ export class LaunchEvent extends SoybeanEvent {
 }
 
 export class WatchEvent extends SoybeanEvent {
+
     public source: 'watcher' = "watcher"
+    public watchEventType: WatchEventType
+    public filename: string | null
+
     constructor(eventType: FS.WatchEventType, filename: string | null) {
-        super()
-        this.watch.event = eventType
-        this.watch.filename = filename
+
+        super() 
+
+        this.watchEventType = eventType
+        this.filename = filename
+
+        this.set('filename', filename)
+        this.set('watchEventType', this.watchEventType)
+
     }
 }
 
