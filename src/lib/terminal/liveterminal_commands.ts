@@ -42,13 +42,13 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
     
     "help": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
         
-        const command = commands[e.terminal.argv[0]] as E.EventHandler<E.TerminalEvent, CommandMeta> | undefined
+        const command = commands[e.argv[0]] as E.EventHandler<E.TerminalEvent, CommandMeta> | undefined
 
-        if (e.terminal.argv[0] && command && command.meta) {
+        if (e.argv[0] && command && command.meta) {
             console.log(`  ${command.meta.usage}`)
             console.log(`  - ${c.grey(command.meta.desc)}`)
         }
-        else if (!e.terminal.argv[0]) {
+        else if (!e.argv[0]) {
 
             const commandInfo: Record<string, Array<[string, string]>> = {}
             const gap   = 4,
@@ -134,7 +134,7 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
         }
         else {
-            Terminal.error(`Command "${e.terminal.argv[0]}" does not exist.`)
+            Terminal.error(`Command "${e.argv[0]}" does not exist.`)
         }
 
     }, {
@@ -155,10 +155,10 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
     "kl": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
 
-        if (!e.terminal.argv[0]) return Terminal.error('Unspecified process name.')
+        if (!e.argv[0]) return Terminal.error('Unspecified process name.')
 
         const mgr = Manager.getLiveInstance()
-        const processName = e.terminal.argv[0] || ""
+        const processName = e.argv[0] || ""
         const process = mgr.children.get(processName)
 
         if (!process) return Terminal.error(`Could not find process "${processName}".`)
@@ -175,10 +175,10 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
     "rv": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
         
-        if (!e.terminal.argv[0]) return Terminal.error('Unspecified process name.')
+        if (!e.argv[0]) return Terminal.error('Unspecified process name.')
 
         const mgr = Manager.getLiveInstance()
-        const processName = e.terminal.argv[0]
+        const processName = e.argv[0]
         const process = mgr.children.get(processName)
 
         if (!process)                                       return Terminal.error(`Could not find process "${processName}".`)
@@ -195,10 +195,10 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
     "rs": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
         
-        if (!e.terminal.argv[0]) return Terminal.error('Unspecified process name.')
+        if (!e.argv[0]) return Terminal.error('Unspecified process name.')
 
         const mgr = Manager.getLiveInstance()
-        const processName = e.terminal.argv[0]
+        const processName = e.argv[0]
         const process = mgr.children.get(processName)
 
         if (!process) return Terminal.error(`Could not find process "${processName}".`)
