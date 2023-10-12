@@ -29,7 +29,7 @@ Now Soybean is capable of:
             - [Watch routines config option](#watch-routines-configuration-options)
 - [Modules](#modules)
     - [Event handlers](#handlers-module)
-
+        - [Event object](#event-object)
 
 # Getting started
 Soybean works on a basis that is followed by many other tools such as `vite` or `tsc`. It is a CLI tool available under the command `soybean` (or `sb` for convenience) that's initialized using a JavaScript configuration file.
@@ -129,7 +129,7 @@ The child process' configuration object accepts the above properties, as well as
 # Routines
 Routines are small pieces of code executed based on events that happen as you work on your project, such us when you modify a file or type a command in the terminal.
 
-Routines use Soybean's the [event handlers module](#event-handlers), a set of predefined methods to build tidy, easy to write procedures, such as moving a file, restarting a child process or calling a custom callback with your code.
+Routines use Soybean's [event handlers module](#event-handlers-module), a set of predefined methods to build tidy, easy to write procedures, such as moving a file, restarting a child process or calling a custom callback with your code.
 
 ## Launch routines
 Launch routines are really simple. All they do is run exactly once when soybean is spawned. This is useful when you want to prepare things before starting your work, such as fetching the remote.
@@ -175,10 +175,43 @@ Soybean({
 | Property name | Type | Default value | Description |
 | ------------- | ---- | ------------- | ----------- |
 | `file`                | `string`      | -     | The target file or directory path that is being watched. |
-| `handle`              | `Function`    | -     | The event handler called whenever a watch event is fired. |
+| `handle`              | `Function`    | -     | The [event handler](#handlers-mofule) called whenever a watch event is fired. |
 | `options.rateLimiter` | `number`      | `500` | The amount of time in milliseconds to wait after a watch event before the next one can be registered. |
 
 The `options` object also accepts native [fs.watch](https://nodejs.org/docs/latest/api/fs.html#fswatchfilename-options-listener) options - `encoding`, `persistent`, `recursive` and `signal`.
 
 # Modules
-## Event handlers
+
+## Event handlers module
+The handlers module is a set of methods that allow you to configure event handlers that handle events that occur in SOybean during your work. They appear as you save a file, type a command or as you launch Soybean itself.
+
+### Event object
+Each time an event handler is called in Soybean, a new event object is created containing the information about the event that ocurred.
+
+The different types of events include:
+
+- `SoybeanEvent` - The default object whose properties and information are available to every event handler used. All of the subsequent event objects extend the `SoybeanEvent` class.
+    - `SoybeanEvent.source` - The source of the event, which, depending on where it originated from can be one of - `"event"` (Default value), `"terminal"`, `"launch"`, `"watcher"`.
+    - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by another event handler inside a [handler group](#handlersgroup).
+        ```ts
+        event.set(key: string, data: any): void
+        ```
+    - `SoybeanEvent.get()` - Used to retrieve a piece of data set on the event object with `set()`.
+        ```ts
+        event.get(key: string): any
+        ```
+    - `SoybeanEvent.update()` - Used to update the value of an item stored on the event object with `set()`. It accepts a callback function used to process the variable and return it to be saved.
+        ```ts
+        event.update(key: string, callback: (data: any) => any)
+        ```
+    - `SoybeanEvent.updateAsync()` - The equivalent of the `update()` method used for asynchronous information.
+        ```ts
+        event.updateAsync(key: string, callback: (data: any) => Promise<any>)   
+        ```
+- `WatchEvent` - The event emitted by [watch routines](#watch-routines).
+    - `WatchEvent.watch.filename` (`string`) - Path to the file/directory where the event originated.
+    - `WatchEvent.watch.event` (`"rename" | "change"`) - The type of change.
+
+- `TerminalEvent` - Event emitted when a user-specified command is entered in the integrated terminal.
+    - `WatchEvent.terminal.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
+    - `WatchEvent.terminal.argvRaw` (`"string"`) - The raw string of text passed after the command keyword.
