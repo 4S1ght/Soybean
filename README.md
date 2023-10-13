@@ -204,11 +204,11 @@ The different types of events include:
     - `SoybeanEvent.source` - The source of the event, which, depending on where it originated from can be one of - `"event"` (Default value), `"terminal"`, `"launch"`, `"watcher"`.
     - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by a subsequent event handler inside a [handler group](#group-handler).
         ```ts
-        event.set(key: string, data: any): void
+        event.set(key: string, data: any)
         ```
     - `SoybeanEvent.get()` - Used to retrieve a piece of data set on the event object with `set()`.
         ```ts
-        event.get(key: string): any
+        event.get(key: string)
         ```
     - `SoybeanEvent.update()` - Used to update the value of an item stored on the event object with `set()`. It accepts a callback function used to process the variable and **return it** to be saved.
         ```ts
@@ -308,7 +308,7 @@ group([
 ```
 
 ### `forEach(handler)`
-The `forEach` handler allows you to loop over an array, either a hardcoded one, or using a `Symbol(string)` to iterate over an array from the event object. Similarly to the regular `for` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+The `forEach` handler allows you to loop over an array. The first parameter accepts either a reference to an array or a `Symbol` to iterate over an array from the event object. Eg. `Symbol("my-item")` to get `"my-item"` and loop over it. Similarly to the regular `for` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
 
 Inside loops, three items are available through `get()` on the event object:
 - `"array"` - The array that the loop is iterating over.
@@ -332,7 +332,7 @@ forEach(Symbol("my-array"), handle(e => {
 ```
 
 ### `forOf(handler)`
-The `forOf` handler allows you to iterate over an iterable object, such as a `map` or other object with `Symbol.iterator`. Similarly to the regular `for of` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+The `forOf` handler allows you to iterate over an iterable object, such as a `map` or any other object with `Symbol.iterator`. You can pass such an object in the first parameter, or use `Symbol(string-key)` to read one object from the event object and then iterate over it. Similarly to the regular `for of` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
 
 Inside loops, three items are available through `get()` on the event object:
 - `"object"` - The object that the loop is iterating over.
@@ -342,8 +342,8 @@ Inside loops, three items are available through `get()` on the event object:
 Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
-forIn(iterable: Iterable, handler: EventHandler)
-forIn(iterable: iterable, id: string, handler: EventHandler)
+forOf(iterable: Iterable, handler: EventHandler)
+forOf(iterable: iterable, id: string, handler: EventHandler)
 ```
 ```ts
 group([
