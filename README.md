@@ -30,6 +30,16 @@ Now Soybean is capable of:
 - [Modules](#modules)
     - [Event handlers](#handlers-module)
         - [Event object](#event-object)
+        - [Miscellaneous handlers](#misc-handlers)
+            - [handle()](#grouphandler)
+            - [group()](#grouphandler)
+            - [wait()](#waitnumber)
+            - [set()](#setkey-value)
+            - [update()](#updatekey-callback)
+            - [forEach()](#foreachhandler)
+            - [forOf()](#forofhandler)
+            - [forIn()](#configuration)
+
 
 # Getting started
 Soybean works on a basis that is followed by many other tools such as `vite` or `tsc`. It is a CLI tool available under the command `soybean` (or `sb` for convenience) that's initialized using a JavaScript configuration file.
@@ -182,17 +192,17 @@ The `options` object also accepts native [fs.watch](https://nodejs.org/docs/late
 
 # Modules
 
-## Event handlers module
-The handlers module is a set of methods that allow you to configure event handlers that handle events that occur in SOybean during your work. They appear as you save a file, type a command or as you launch Soybean itself.
+# Event handlers module
+The handlers module is a set of methods that allow you to configure event handlers which handle events that occur in Soybean during your work. They happen when you save a file, type a command or as you launch Soybean itself.
 
-### Event object
+## Event object
 Each time an event handler is called in Soybean, a new event object is created containing the information about the event that ocurred.
 
 The different types of events include:
 
-- `SoybeanEvent` - The default object whose properties and information are available to every event handler used. All of the subsequent event objects extend the `SoybeanEvent` class.
+- `SoybeanEvent` - The default object whose properties and information are available to every event handler used. All of the event objects below extend the `SoybeanEvent` class.
     - `SoybeanEvent.source` - The source of the event, which, depending on where it originated from can be one of - `"event"` (Default value), `"terminal"`, `"launch"`, `"watcher"`.
-    - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by another event handler inside a [handler group](#handlersgroup).
+    - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by a subsequent event handler inside a [handler group](#group-handler).
         ```ts
         event.set(key: string, data: any): void
         ```
@@ -200,7 +210,7 @@ The different types of events include:
         ```ts
         event.get(key: string): any
         ```
-    - `SoybeanEvent.update()` - Used to update the value of an item stored on the event object with `set()`. It accepts a callback function used to process the variable and return it to be saved.
+    - `SoybeanEvent.update()` - Used to update the value of an item stored on the event object with `set()`. It accepts a callback function used to process the variable and **return it** to be saved.
         ```ts
         event.update(key: string, callback: (data: any) => any)
         ```
@@ -209,9 +219,138 @@ The different types of events include:
         event.updateAsync(key: string, callback: (data: any) => Promise<any>)   
         ```
 - `WatchEvent` - The event emitted by [watch routines](#watch-routines).
-    - `WatchEvent.watch.filename` (`string`) - Path to the file/directory where the event originated.
-    - `WatchEvent.watch.event` (`"rename" | "change"`) - The type of change.
+    - `WatchEvent.filename` (`string`) - Path to the file/directory where the event originated.
+    - `WatchEvent.watchEventType` (`"rename" | "change"`) - The type of change.
+        - All of which are available through `event.get()`.
 
 - `TerminalEvent` - Event emitted when a user-specified command is entered in the integrated terminal.
-    - `WatchEvent.terminal.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
-    - `WatchEvent.terminal.argvRaw` (`"string"`) - The raw string of text passed after the command keyword.
+    - `WatchEven.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
+    - `WatchEven.argvRaw` (`"string"`) - The raw string of text passed after the command keyword.
+        - All of which are available through `event.get()`.
+
+## Miscellaneous handlers
+
+### `handle(callback)`
+The `handle` event handler uses a traditional callback function to allow you to perform any kind of action not possible with Soybean's built-in handlers.
+
+Additionally it has access to the [event object](#event-object) which allows it to interact with data shared with other handlers within the same [event group](#grouphandler).
+```ts
+handle(event: SoybeanEvent, callback: EventHandler)
+```
+```ts
+handle(e => {
+    const data = getSomeData()
+    e.set('data', data)
+})
+```
+
+### `group(handler[])`
+The `group` handler allows you to group multiple handlers and share data between them.
+This lets you create complex routines that perform a set of tasks on each event.
+
+Inside of groups the event object includes an additional method `stopPropagation()` which lets stop stop the group's execution. When the method is called inside a `handle()` handler, all subsequent event handlers will not be executed.
+```ts
+group(handlers: EventHandler[])
+```
+```ts
+group([
+    // Read a file
+    fs.readFile('./src/myConfig.json', 'my-config', 'utf-8'),
+    // Parse it & save to "my-parsed-config"
+    json.parse('my-config', 'my-parsed-config'),
+    // Log it to the console
+    handle(e) => {
+        console.log(event.get('my-parsed-config'))
+    })
+])
+```
+
+### `wait(number)`
+The `wait` event handler lets you create a time gap inside a handler group.
+```ts
+wait(time: number)
+```
+```ts
+group([
+    handle(e => { event.set('start', Date.now()) }),
+    wait(1000),
+    // Will log "1000"
+    handle(e => { console.log(Date.now() - e.get('start')) })
+])
+```
+
+### `set(key, value)`
+The `set` handler is used to set a property on the event object inside a handler group.
+It is effectively a shorthand for `event.set` inside a `handle` event handler.
+```ts
+set(key: string, data: any)
+```
+```ts
+group([
+    set('config', fs.readFileSync('./config.js')),
+    handle(e => console.log(e.get('config')))
+])
+```
+
+### `update(key, callback)`
+The `update` handler is a shorthand for `event.update` & `event.updateAsync`.
+It lets you quickly update a piece of information saved on the event object.
+```ts
+update(key: string, callback: (data: any) => any)
+```
+```ts
+group([
+    set('config', fs.readFileSync('./config.yaml')),
+    update('config', (config) => {
+        return YAML.parse(config)
+    })
+])
+```
+
+### `forEach(handler)`
+The `forEach` handler allows you to loop over an array, either a hardcoded one, or using a `Symbol(string)` to iterate over an array from the event object. Similarly to the regular `for` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+
+Inside loops, three items are available through `get()` on the event object:
+- `"array"` - The array that the loop is iterating over.
+- `"index"` - The current array index inside the loop.
+- `"value"` - The current value from the array the loop is iterating over.
+
+**Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+
+```ts
+forEach(array: Symbol|any[], handler: EventHandler)
+forEach(array: Symbol?any[], id: string, handler: EventHandler)
+```
+```ts
+forEach([1, 2, 3, 4, 5], 'loop1', handle(e => {
+    console.log(e.get('loop1-value'))
+}))
+forEach(Symbol("my-array"), handle(e => {
+    console.log(e.get('value'))
+}))
+```
+
+### `forOf(handler)`
+The `forOf` handler allows you to iterate over an iterable object, such as a `map` or other object with `Symbol.iterator`. Similarly to the regular `for of` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+
+Inside loops, three items are available through `get()` on the event object:
+- `"object"` - The object that the loop is iterating over.
+- `"value"` - The current value read from the iterated object.
+
+**Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+
+```ts
+forIn(iterable: Iterable, handler: EventHandler)
+forIn(iterable: iterable, id: string, handler: EventHandler)
+```
+```ts
+group([
+    set('values', [1, 2, 3, 4, 5])
+    forOf('values', 'loop1', handle(e => {
+        console.log(e.get('loop1-value'))
+    })),
+])
+```
+
