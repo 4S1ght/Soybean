@@ -31,14 +31,15 @@ Now Soybean is capable of:
     - [Event handlers](#handlers-module)
         - [Event object](#event-object)
         - [Miscellaneous handlers](#misc-handlers)
-            - [handle()](#grouphandler)
-            - [group()](#grouphandler)
-            - [wait()](#waitnumber)
-            - [set()](#setkey-value)
-            - [update()](#updatekey-callback)
-            - [forEach()](#foreachhandler)
-            - [forOf()](#forofhandler)
-            - [forIn()](#configuration)
+            - [`handle()`](#handle)
+            - [`group()`](#group)
+            - [`wait()`](#wait)
+            - [`set()`](#set)
+            - [`update()](#update)
+            - [`forEach()`](#foreach)
+            - [`forOf()`](#forof)
+            - [`forIn()`](#forin)
+        
 
 
 # Getting started
@@ -230,7 +231,7 @@ The different types of events include:
 
 ## Miscellaneous handlers
 
-### `handle(callback)`
+### `handle()`
 The `handle` event handler uses a traditional callback function to allow you to perform any kind of action not possible with Soybean's built-in handlers.
 
 Additionally it has access to the [event object](#event-object) which allows it to interact with data shared with other handlers within the same [event group](#grouphandler).
@@ -244,7 +245,7 @@ handle(e => {
 })
 ```
 
-### `group(handler[])`
+### `group()`
 The `group` handler allows you to group multiple handlers and share data between them.
 This lets you create complex routines that perform a set of tasks on each event.
 
@@ -265,7 +266,7 @@ group([
 ])
 ```
 
-### `wait(number)`
+### `wait()`
 The `wait` event handler lets you create a time gap inside a handler group.
 ```ts
 wait(time: number)
@@ -279,7 +280,7 @@ group([
 ])
 ```
 
-### `set(key, value)`
+### `set()`
 The `set` handler is used to set a property on the event object inside a handler group.
 It is effectively a shorthand for `event.set` inside a `handle` event handler.
 ```ts
@@ -292,7 +293,7 @@ group([
 ])
 ```
 
-### `update(key, callback)`
+### `update()`
 The `update` handler is a shorthand for `event.update` & `event.updateAsync`.
 It lets you quickly update a piece of information saved on the event object.
 ```ts
@@ -307,10 +308,10 @@ group([
 ])
 ```
 
-### `forEach(handler)`
+### `forEach()`
 The `forEach` handler allows you to loop over an array. The first parameter accepts either a reference to an array or a `Symbol` to iterate over an array from the event object. Eg. `Symbol("my-item")` to get `"my-item"` and loop over it. Similarly to the regular `for` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
 
-Inside loops, three items are available through `get()` on the event object:
+Inside `forEach` loops, three items are available through `get()` on the event object:
 - `"array"` - The array that the loop is iterating over.
 - `"index"` - The current array index inside the loop.
 - `"value"` - The current value from the array the loop is iterating over.
@@ -319,22 +320,27 @@ Inside loops, three items are available through `get()` on the event object:
 Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
-forEach(array: Symbol|any[], handler: EventHandler)
-forEach(array: Symbol?any[], id: string, handler: EventHandler)
+forEach(iterable: Symbol|any[], handler: EventHandler)
+forEach(iterable: Symbol?any[], id: string, handler: EventHandler)
 ```
 ```ts
-forEach([1, 2, 3, 4, 5], 'loop1', handle(e => {
-    console.log(e.get('loop1-value'))
-}))
-forEach(Symbol("my-array"), handle(e => {
+forEach([1, 2, 3, 4, 5], handle(e => {
     console.log(e.get('value'))
 }))
 ```
+```ts
+group([
+    set('my-array', [1, 2, 3, 4, 5]),
+    forEach(Symbol("my-array"), handle(e => {
+        console.log(e.get('value'))
+    }))
+])
+```
 
-### `forOf(handler)`
+### `forOf()`
 The `forOf` handler allows you to iterate over an iterable object, such as a `map` or any other object with `Symbol.iterator`. You can pass such an object in the first parameter, or use `Symbol(string-key)` to read one object from the event object and then iterate over it. Similarly to the regular `for of` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
 
-Inside loops, three items are available through `get()` on the event object:
+Inside `forOf` loops, two items are available through `get()` on the event object:
 - `"object"` - The object that the loop is iterating over.
 - `"value"` - The current value read from the iterated object.
 
@@ -343,14 +349,47 @@ Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"l
 
 ```ts
 forOf(iterable: Iterable, handler: EventHandler)
-forOf(iterable: iterable, id: string, handler: EventHandler)
+forOf(iterable: Iterable, id: string, handler: EventHandler)
+```
+```ts
+forOf([1, 2, 3, 4, 5], handle(e => {
+    console.log(e.get('value'))
+}))
 ```
 ```ts
 group([
     set('values', [1, 2, 3, 4, 5])
-    forOf('values', 'loop1', handle(e => {
-        console.log(e.get('loop1-value'))
-    })),
+    forOf(Symbol('values'), handle(e => {
+        console.log(e.get('value'))
+    }))
 ])
 ```
 
+### `forIn()`
+The `forIn` event handler allows you to iterate over all enumerable string properties of an object. The first parameter accepts either a reference to such object or a `Symbol(string-key)` to read an object from the event object automatically. Similarly to the native `for in` loop, you can label it with an ID to reference it with `event.break` and `event.continue` which are available inside all loop handlers.
+
+Inside `forIn` loops, three items are available through `get()` on the event object:
+- `"object"` - The reference to the object being looped over.
+- `"key"` - The current object key inside the loop.
+- `"value"` - The current value read from the object.
+
+**Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+
+```ts
+forIn(iterable: Record<any, any>, handler: EventHandler)
+forIn(iterable: Record<any, any>, id: string, handler: EventHandler)
+```
+```ts
+forIn({ a: 1, b: 2, c: 3 }, handle(e => {
+    console.log(e.get('value'))
+}))
+```
+```ts
+group([
+    set('values', { a: 1, b: 2, c: 3 })
+    forIn(Symbol('values'), handle(e => {
+        console.log(e.get('value'))
+    }))
+])
+```
