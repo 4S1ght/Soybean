@@ -16,6 +16,7 @@ type FSReadFileOptions = Parameters<typeof fsp.readFile>["1"]
 type FSReadDirOptions = Parameters<typeof fsp.readdir>["1"]
 type FSRmOptions = Parameters<typeof fsp.rm>["1"]
 type FSMkdirOptions = Parameters<typeof fsp.mkdir>["1"]
+type FSRmdirOptions = Parameters<typeof fsp.rmdir>["1"]
 
 // Handlers =========================================================
 
@@ -68,14 +69,15 @@ export function readdir<Event extends E.SoybeanEvent>
  *
  * Alias for `fs.rmdir`
  */
-export function rmdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: string | Symbol): E.EventHandler<Event> {
+export function rmdir<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (directory: string | Symbol, options?: FSRmdirOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, directory)
             helpers.getLoggerType(e.source)(`rmdir "${target}"`)
 
             const readyPath = helpers.toCWDRelative(target)
-            await fsp.rmdir(readyPath)
+            await fsp.rmdir(readyPath, options)
             end(null)
         }
         catch (error) {
