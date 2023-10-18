@@ -445,6 +445,22 @@ group([
 ```
 
 ### `rmdir()`
+Removes a directory.
+Accepts a `string` path or a `symbol` with a description matching a key to read from the event object and an options object (see native [`fs.rmdir`](https://nodejs.org/api/fs.html#fsrmdirpath-options-callback) options).
+
+```ts
+fs.rmdir(path: string | symbol, options?: RmdirOptions)
+```
+```ts
+fs.rmdir('./path/to/remove', { recursive: true })
+```
+```ts
+group([
+    set('path', './my/path/'),
+    fs.rmdir(Symbol('path'))
+])
+```
+
 ### `rm()`
 ### `readFile()`
 ### `writeFile()`
