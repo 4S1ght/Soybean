@@ -35,12 +35,24 @@ Now Soybean is capable of:
             - [`group()`](#group)
             - [`wait()`](#wait)
             - [`set()`](#set)
-            - [`update()](#update)
+            - [`update()`](#update)
             - [`forEach()`](#foreach)
             - [`forOf()`](#forof)
             - [`forIn()`](#forin)
+        - [File system](#fs-handlers)
+            - [`mkdir()`](#mkdir)
+            - [`readdir()`](#readdir)
+            - [`rmdir()`](#rmdir)
+            - [`rm()`](#rm)
+            - [`readFile()`](#readfile)
+            - [`writeFile()`](#writefile)
+            - [`copyFile()`](#copyfile)
+            - [`chmod()`](#chmod)
+        - [Child process](#child-process-handlers)
+        - [Shell](#shell-handlers)
+        - [JSON](#json)
+        - [Network](#network-handlers)
         
-
 
 # Getting started
 Soybean works on a basis that is followed by many other tools such as `vite` or `tsc`. It is a CLI tool available under the command `soybean` (or `sb` for convenience) that's initialized using a JavaScript configuration file.
@@ -135,12 +147,12 @@ Soybean({
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
 
-The child process' configuration object accepts the above properties, as well as standard options available for `child_process.spawn()` such as `shell` or `signal`, with exception of `stdio` and `detached` which were either disabled or altered due to how soybean operates.
+The child process' configuration object accepts the above properties, as well as standard options available for [`child_process.spawn()`](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options) such as `shell` or `signal`, with exception of `stdio` and `detached` which were either disabled or altered due to how soybean operates.
 
 # Routines
 Routines are small pieces of code executed based on events that happen as you work on your project, such us when you modify a file or type a command in the terminal.
 
-Routines use Soybean's [event handlers module](#event-handlers-module), a set of predefined methods to build tidy, easy to write procedures, such as moving a file, restarting a child process or calling a custom callback with your code.
+Routines use Soybean's [event handlers module](#event-handlers-module), a set of predefined methods to build tidy, easy to write procedures, such as moving a file, restarting a child process or calling a custom callback with your own code.
 
 ## Launch routines
 Launch routines are really simple. All they do is run exactly once when soybean is spawned. This is useful when you want to prepare things before starting your work, such as fetching the remote.
@@ -249,7 +261,7 @@ handle(e => {
 The `group` handler allows you to group multiple handlers and share data between them.
 This lets you create complex routines that perform a set of tasks on each event.
 
-Inside of groups the event object includes an additional method `stopPropagation()` which lets stop stop the group's execution. When the method is called inside a `handle()` handler, all subsequent event handlers will not be executed.
+Inside of groups the event object includes an additional method `stopPropagation()` which lets you stop the group's execution when called.
 ```ts
 group(handlers: EventHandler[])
 ```
@@ -260,7 +272,7 @@ group([
     // Parse it & save to "my-parsed-config"
     json.parse('my-config', 'my-parsed-config'),
     // Log it to the console
-    handle(e) => {
+    handle(e => {
         console.log(event.get('my-parsed-config'))
     })
 ])
@@ -309,7 +321,9 @@ group([
 ```
 
 ### `forEach()`
-The `forEach` handler allows you to loop over an array. The first parameter accepts either a reference to an array or a `Symbol` to iterate over an array from the event object. Eg. `Symbol("my-item")` to get `"my-item"` and loop over it. Similarly to the regular `for` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+Loops over an array or string. Accepts direct reference or a symbol with a description matching the key to read from the event object.
+
+Exposes `event.break` and `event.continue` methods to manage the loop's operation. All of them accept an ID to target a specific loop
 
 Inside `forEach` loops, three items are available through `get()` on the event object:
 - `"array"` - The array that the loop is iterating over.
@@ -320,8 +334,8 @@ Inside `forEach` loops, three items are available through `get()` on the event o
 Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
-forEach(iterable: Symbol|any[], handler: EventHandler)
-forEach(iterable: Symbol?any[], id: string, handler: EventHandler)
+forEach(iterable: symbol | any[], handler: EventHandler)
+forEach(iterable: symbol | any[], id: string, handler: EventHandler)
 ```
 ```ts
 forEach([1, 2, 3, 4, 5], handle(e => {
@@ -338,7 +352,9 @@ group([
 ```
 
 ### `forOf()`
-The `forOf` handler allows you to iterate over an iterable object, such as a `map` or any other object with `Symbol.iterator`. You can pass such an object in the first parameter, or use `Symbol(string-key)` to read one object from the event object and then iterate over it. Similarly to the regular `for of` loop, you can also give it an ID to later be able to use `event.break` and `event.continue` inside it.
+Loops over an iterable object or array. Accepts an iterable object  or a symbol with a description matching the key to read from the event object.
+
+Exposes `event.break` and `event.continue` methods to manage the loop's operation. All of them accept an ID to target a specific loop
 
 Inside `forOf` loops, two items are available through `get()` on the event object:
 - `"object"` - The object that the loop is iterating over.
@@ -348,8 +364,8 @@ Inside `forOf` loops, two items are available through `get()` on the event objec
 Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
-forOf(iterable: Iterable, handler: EventHandler)
-forOf(iterable: Iterable, id: string, handler: EventHandler)
+forOf(iterable: symbol | Iterable, handler: EventHandler)
+forOf(iterable: symbol | Iterable, id: string, handler: EventHandler)
 ```
 ```ts
 forOf([1, 2, 3, 4, 5], handle(e => {
@@ -366,7 +382,9 @@ group([
 ```
 
 ### `forIn()`
-The `forIn` event handler allows you to iterate over all enumerable string properties of an object. The first parameter accepts either a reference to such object or a `Symbol(string-key)` to read an object from the event object automatically. Similarly to the native `for in` loop, you can label it with an ID to reference it with `event.break` and `event.continue` which are available inside all loop handlers.
+Loops over enumerable string properties of an object. Accepts an enumerable object or a symbol with a description matching the key to read from the event object. 
+
+Exposes `event.break` and `event.continue` methods to manage the loop's operation. All of them accept an ID to target a specific loop
 
 Inside `forIn` loops, three items are available through `get()` on the event object:
 - `"object"` - The reference to the object being looped over.
@@ -377,8 +395,8 @@ Inside `forIn` loops, three items are available through `get()` on the event obj
 Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
-forIn(iterable: Record<any, any>, handler: EventHandler)
-forIn(iterable: Record<any, any>, id: string, handler: EventHandler)
+forIn(iterable: symbol | Record<any, any>, handler: EventHandler)
+forIn(iterable: Record <any, any>, id: string, handler: EventHandler)
 ```
 ```ts
 forIn({ a: 1, b: 2, c: 3 }, handle(e => {
@@ -393,3 +411,32 @@ group([
     }))
 ])
 ```
+
+## FS handlers
+
+### `mkdir()`
+Used to create a new directory.
+Accepts either a `string` path or a `symbol` with a description matching a key to read from the event object in place of the text path.
+
+```ts
+fs.mkDir(path: string|symbol)
+```
+```ts
+fs.mkDir('./relative/to/soybean-config/')
+```
+```ts
+group([
+    set('path', 'some-path')
+    forIn(Symbol('some-path'), handle(e => {
+        console.log(e.get('value'))
+    }))
+])
+```
+
+### `readdir()`
+### `rmdir()`
+### `rm()`
+### `readFile()`
+### `writeFile()`
+### `copyFile()`
+### `chmod()`
