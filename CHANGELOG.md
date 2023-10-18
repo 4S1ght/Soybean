@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Set Node engine to 18.x.x for future releases.
+- `fs.mkdir` now accepts an optional options parameter (See native [`fs.mkdir`](#https://nodejs.org/api/fs.html#fsmkdirpath-options-callback) documentation)
 
 ## [0.1.3]
 
