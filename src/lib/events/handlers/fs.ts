@@ -15,6 +15,7 @@ type FSWriteFileOptions = Parameters<typeof fsp.writeFile>["2"]
 type FSReadFileOptions = Parameters<typeof fsp.readFile>["1"]
 type FSReadDirOptions = Parameters<typeof fsp.readdir>["1"]
 type FSRmOptions = Parameters<typeof fsp.rm>["1"]
+type FSMkdirOptions = Parameters<typeof fsp.mkdir>["1"]
 
 // Handlers =========================================================
 
@@ -23,14 +24,16 @@ type FSRmOptions = Parameters<typeof fsp.rm>["1"]
  *
  * Alias for `fs.mkdir`
  */
-export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>(directory: string | Symbol): E.EventHandler<Event> {
+export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>
+    (directory: string | Symbol, options?: FSMkdirOptions): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
             const target = helpers.getStoredValue(e, directory)
             helpers.getLoggerType(e.source)(`mkdir "${target}"`)
 
+            const $options = options !== null && typeof options === 'object' ? { recursive: true, ...options} : options
             const readyPath = helpers.toCWDRelative(target)
-            await fsp.mkdir(readyPath, { recursive: true })
+            await fsp.mkdir(readyPath, $options)
             end(null)
         }
         catch (error) {
