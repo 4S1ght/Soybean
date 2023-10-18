@@ -40,14 +40,14 @@ Now Soybean is capable of:
             - [`forOf()`](#forof)
             - [`forIn()`](#forin)
         - [File system](#fs-handlers)
-            - [`mkdir()`](#mkdir)
-            - [`readdir()`](#readdir)
-            - [`rmdir()`](#rmdir)
-            - [`rm()`](#rm)
-            - [`readFile()`](#readfile)
-            - [`writeFile()`](#writefile)
-            - [`copyFile()`](#copyfile)
-            - [`chmod()`](#chmod)
+            - [`fs.mkdir()`](#mkdir)
+            - [`fs.readdir()`](#readdir)
+            - [`fs.rmdir()`](#rmdir)
+            - [`fs.rm()`](#rm)
+            - [`fs.readFile()`](#readfile)
+            - [`fs.writeFile()`](#writefile)
+            - [`fs.copyFile()`](#copyfile)
+            - [`fs.chmod()`](#chmod)
         - [Child process](#child-process-handlers)
         - [Shell](#shell-handlers)
         - [JSON](#json)
@@ -396,7 +396,7 @@ Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"l
 
 ```ts
 forIn(iterable: symbol | Record<any, any>, handler: EventHandler)
-forIn(iterable: Record <any, any>, id: string, handler: EventHandler)
+forIn(iterable: Record<any, any>, id: string, handler: EventHandler)
 ```
 ```ts
 forIn({ a: 1, b: 2, c: 3 }, handle(e => {
@@ -414,26 +414,36 @@ group([
 
 ## FS handlers
 
-### `mkdir()`
+### `fs.mkdir()`
 Used to create a new directory.
 Accepts either a `string` path or a `symbol` with a description matching a key to read from the event object in place of the text path.
 
 ```ts
-fs.mkDir(path: string|symbol)
+fs.mkdir(path: string | symbol, options: MkdirOptions)
 ```
 ```ts
-fs.mkDir('./relative/to/soybean-config/')
+fs.mkdir('./relative/to/soybean-config/')
 ```
 ```ts
 group([
-    set('path', 'some-path')
-    forIn(Symbol('some-path'), handle(e => {
-        console.log(e.get('value'))
-    }))
+    set('path', './some/path')
+    fs.mkdir(Symbol('some-path'))
 ])
 ```
 
-### `readdir()`
+### `fs.readdir()`
+Reads the contents of a directory and saves it on the event object.
+Accepts a `string` path or a `symbol` with a description matching a key to read from the event object in place of the path, a `string` which is used to save the results on the event object and read options the same as in the native [`fs.readdir`](https://nodejs.org/api/fs.html#fsreaddirpath-options-callback).
+```ts
+fs.readdir(path: string | symbol, saveTo: string, options?: ReaddirOptions)
+```
+```ts
+group([
+    fs.readdir('./relative/to/soybean-config/', 'my-dir'),
+    handle(e => console.log(e.get('my-dir')))
+])
+```
+
 ### `rmdir()`
 ### `rm()`
 ### `readFile()`
