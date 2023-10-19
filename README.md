@@ -22,14 +22,15 @@ Now Soybean is capable of:
 - [Getting started](#getting-started)
 - [Configuration](#configuration)
     - [Child processes](#child-processes-configuration)
-        - [Child process config options](#child-process-configuration-options)
+        - [Child process configuration options](#child-process-configuration-options)
     - [Routines](#routines)
         - [Launch routines](#launch-routines)
         - [Watch routines](#watch-routines)
-            - [Watch routines config option](#watch-routines-configuration-options)
+            - [Watch routines configuration options](#watch-routines-configuration-options)
 - [Modules](#modules)
     - [Event handlers](#handlers-module)
         - [Event object](#event-object)
+        - [Symbols](#using-symbols)
         - [Miscellaneous handlers](#misc-handlers)
             - [`handle()`](#handle)
             - [`group()`](#group)
@@ -240,6 +241,24 @@ The different types of events include:
     - `WatchEven.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
     - `WatchEven.argvRaw` (`"string"`) - The raw string of text passed after the command keyword.
         - All of which are available through `event.get()`.
+
+## Using symbols
+Many of the event handlers allow you to replace their regular parameters with `symbols` which are used to make the values of these parameters dynamic, as opposed to hardcoding them.
+
+Any time a handler supporting symbol parameters is passed a symbol, it will read its description and use it as a key. This key is then used to fetch any data living on the event object and using it in place of the parameter.
+
+**Example:**  
+```ts
+fs.mkdir('./my/directory/')
+```
+```ts
+group([
+    // Do some setup and save a "my-dir" variable.
+    ...,
+    // Use the "my-dir" variable to pass a directory to make dynamically:
+    fs.mkdir(Symbol('my-dir'))
+])
+```
 
 ## Miscellaneous handlers
 
@@ -462,7 +481,29 @@ group([
 ```
 
 ### `rm()`
+Remove a file or directory.
+Accepts a `string` path or a `symbol` with a description matching the key to read from the event object and an options object same as in native [`fs.rm`](https://nodejs.org/api/fs.html#fsrmpath-options-callback).
+
+```ts
+fs.rm(path: string | symbol, options>: RmOptions)
+```
+```ts
+fs.rm('./my/path.txt', { force: true })
+```
+
 ### `readFile()`
+Reads the contents of a file and saves it on the event object to be later used inside another handler.
+Accepts a `string` path or `symbol` with a description matching the key to read from the event object and a `string` key used to save the file data on the event object.
+```ts
+fs.readFile(path: string | symbol, saveTo: string, options?: ReadFileOptions)
+```
+```ts
+group([
+    fs.readFile('./my/config.txt', 'my-config', { encoding: 'utf-8' }),
+    handle(e => console.log(e.get('my-config')))
+])
+```
+
 ### `writeFile()`
 ### `copyFile()`
 ### `chmod()`
