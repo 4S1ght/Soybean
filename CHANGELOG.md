@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Added `e.del()` method for deleting information stored on the event object.
 - Added `soybean init [file]` command that lets the user create a boilerplate configuration file.
 - Added `passthroughShell` setting status to the `help` command output
+- Added support for string templates to all the handler parameters that supported symbols to read data from the event object. Example - Set a variable `who` to `"world"` using `e.set()` and use `"hello {{ who }}!"` instead of a symbol parameter to receive `"hello world!"` in its place programmatically.
 
 ### Fixed
 - Fixed a typo in the error message shown from the help command when the user tries to show details about a non-existent command.
@@ -23,7 +24,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Set Node engine to 18.x.x for future releases.
-- `fs.mkdir` now accepts an optional options parameter (See native [`fs.mkdir`](#https://nodejs.org/api/fs.html#fsmkdirpath-options-callback) documentation)
+- `fs.mkdir` and `fs.rmdir` now accept an optional options parameter (See native [`fs.mkdir`](#https://nodejs.org/api/fs.html#fsmkdirpath-options-callback) documentation)
 
 ## [0.1.3]
 

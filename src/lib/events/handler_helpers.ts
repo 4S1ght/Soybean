@@ -1,7 +1,18 @@
 
 import path from 'path'
 import Terminal from '../terminal/terminal.js'
-import type * as E from "./events.js"
+import * as E from "./events.js"
+
+
+/**
+ * Finds all the string template occurrences such as `{{ my-variable }}`
+ * and replaces them with data from the event object living under the key matching the text inside the brackets, excluding the whitespace around the curly brackets.
+ */
+function replaceStringTemplateOccurrences(e: E.SoybeanEvent, string: string) {
+    return string.replace(/\{\{\s*([^}]+)\s*\}\}/g, (sub, match, ...args) => {
+        return e.get(match.trim())
+    })
+}
 
 /**
  * Event handlers can pass information between them via the event object.
@@ -10,7 +21,9 @@ import type * as E from "./events.js"
 export function getStoredValue<ValueType>(event: E.SoybeanEvent, value: ValueType): Exclude<ValueType, Symbol> {
     return typeof value === 'symbol'
         ? event.get(value.description!) 
-        : value
+        : typeof value === 'string'
+            ? replaceStringTemplateOccurrences(event, value)
+            : value
 }
 
 /**
