@@ -685,9 +685,11 @@ shell.spawn(['tsc', '--outDir', './dest/'], { stdio: 'none' })
 ```
 
 </details>
+<br/>
 
 The altered `options` object properties:
 - `stdio` - which accepts the following values:
     - `"all"` (default) - Pipes `stdout` and `stderr` to the terminal.
     - `"none"` - Mutes the entire process.
     - `"takeover"` - Temporarily takes over the terminal's output **and** input, letting you interact with the spawned process until it dies.
+    
