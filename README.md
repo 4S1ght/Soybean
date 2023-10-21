@@ -639,22 +639,26 @@ fs.chmod('./path/to/file.js', 0o400)
 </details>
 
 ## CP Handlers
-Handlers for child process management.
+Handlers for child process management.  
+Use them for managing the lifecycle of your child processes, like restarting a child process when a config file it depends on is changed, or when you need to reset their state completely before different actions.
 
 ### `cp.kill()`
-Kills a child process of a given name.
+Kills a child process of a given name if it's alive.  
+**Note**: Use the `pcs` command in the integrated terminal to check the process' status.
 ```ts
 cp.kill(process: string)
 ```
 
 ### `cp.revive()`
-Revives a dead child process of a given name.
+Revives a dead child process of a given name if it's dead.  
+**Note**: Use the `pcs` command in the integrated terminal to check the process' status.
 ```ts
 cp.kill(process: string)
 ```
 
 ### `cp.restart()`
-Restarts a child process of a given name.
+Restarts a child process of a given name.  
+Unlike `cp.kill` and `cp.revive`, `cp.restart` works no matter if the child process is alive or dead. If it's dead, it will simply be revived, if it's alive, it will be killed and brought back.
 ```ts
 cp.kill(process: string)
 ```
