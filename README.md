@@ -41,14 +41,14 @@ Now Soybean is capable of:
             - [`forOf()`](#forof)
             - [`forIn()`](#forin)
         - [File system](#fs-handlers)
-            - [`fs.mkdir()`](#mkdir)
-            - [`fs.readdir()`](#readdir)
-            - [`fs.rmdir()`](#rmdir)
-            - [`fs.rm()`](#rm)
-            - [`fs.readFile()`](#readfile)
-            - [`fs.writeFile()`](#writefile)
-            - [`fs.copyFile()`](#copyfile)
-            - [`fs.chmod()`](#chmod)
+            - [`fs.mkdir()`](#fsmkdir)
+            - [`fs.readdir()`](#fsreaddir)
+            - [`fs.rmdir()`](#fsrmdir)
+            - [`fs.rm()`](#fsrm)
+            - [`fs.readFile()`](#fsreadfile)
+            - [`fs.writeFile()`](#fswritefile)
+            - [`fs.copyFile()`](#fscopyfile)
+            - [`fs.chmod()`](#fschmod)
         - [Child process](#child-process-handlers)
         - [Shell](#shell-handlers)
         - [JSON](#json)
@@ -245,7 +245,7 @@ The different types of events include:
 ## Using symbols
 Many of the event handlers allow you to replace their regular parameters with `symbols` which are used to make the values of these parameters dynamic, as opposed to hardcoding them.
 
-Any time a handler supporting symbol parameters is passed a symbol, it will read its description and use it as a key. This key is then used to fetch any data living on the event object and using it in place of the parameter.
+Any time a handler supporting symbol parameters is passed a symbol, it will read its description and use it as a key. This key is then used to fetch any data living on the event object and use it in place of the parameter.
 
 **Example:**  
 ```ts
@@ -255,8 +255,18 @@ fs.mkdir('./my/directory/')
 group([
     // Do some setup and save a "my-dir" variable.
     ...,
-    // Use the "my-dir" variable to pass a directory to make dynamically:
+    // Use the "my-dir" variable to choose the directory path dynamically.
     fs.mkdir(Symbol('my-dir'))
+])
+```
+
+Additionally, for string parameters that support dynamic values with the use of `symbols` string templates can be used instead:
+```ts
+group([
+    // Set a "my-dir" variable.
+    ...,
+    // Then u it within a string parameter:
+    fs.mkdir('./path/to/{{ my-dir }}/')
 ])
 ```
 
@@ -265,16 +275,21 @@ group([
 ### `handle()`
 The `handle` event handler uses a traditional callback function to allow you to perform any kind of action not possible with Soybean's built-in handlers.
 
-Additionally it has access to the [event object](#event-object) which allows it to interact with data shared with other handlers within the same [event group](#grouphandler).
+Additionally it has access to the [event object](#event-object) which allows it to interact with data shared with other handlers within the same [event group](#group).
 ```ts
 handle(event: SoybeanEvent, callback: EventHandler)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 handle(e => {
     const data = getSomeData()
     e.set('data', data)
 })
 ```
+
+</details>
 
 ### `group()`
 The `group` handler allows you to group multiple handlers and share data between them.
@@ -284,6 +299,9 @@ Inside of groups the event object includes an additional method `stopPropagation
 ```ts
 group(handlers: EventHandler[])
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     // Read a file
@@ -295,21 +313,28 @@ group([
         console.log(event.get('my-parsed-config'))
     })
 ])
+
 ```
+</details>
 
 ### `wait()`
 The `wait` event handler lets you create a time gap inside a handler group.
 ```ts
 wait(time: number)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     handle(e => { event.set('start', Date.now()) }),
     wait(1000),
-    // Will log "1000"
+    // Logs out "1000"
     handle(e => { console.log(Date.now() - e.get('start')) })
 ])
 ```
+
+</details>
 
 ### `set()`
 The `set` handler is used to set a property on the event object inside a handler group.
@@ -317,6 +342,9 @@ It is effectively a shorthand for `event.set` inside a `handle` event handler.
 ```ts
 set(key: string, data: any)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     set('config', fs.readFileSync('./config.js')),
@@ -324,12 +352,17 @@ group([
 ])
 ```
 
+</details>
+
 ### `update()`
 The `update` handler is a shorthand for `event.update` & `event.updateAsync`.
 It lets you quickly update a piece of information saved on the event object.
 ```ts
 update(key: string, callback: (data: any) => any)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     set('config', fs.readFileSync('./config.yaml')),
@@ -338,6 +371,8 @@ group([
     })
 ])
 ```
+
+</details>
 
 ### `forEach()`
 Loops over an array or string. Accepts direct reference or a symbol with a description matching the key to read from the event object.
@@ -356,6 +391,9 @@ Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"l
 forEach(iterable: symbol | any[], handler: EventHandler)
 forEach(iterable: symbol | any[], id: string, handler: EventHandler)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 forEach([1, 2, 3, 4, 5], handle(e => {
     console.log(e.get('value'))
@@ -369,6 +407,8 @@ group([
     }))
 ])
 ```
+
+</details>
 
 ### `forOf()`
 Loops over an iterable object or array. Accepts an iterable object  or a symbol with a description matching the key to read from the event object.
@@ -386,6 +426,9 @@ Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"l
 forOf(iterable: symbol | Iterable, handler: EventHandler)
 forOf(iterable: symbol | Iterable, id: string, handler: EventHandler)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 forOf([1, 2, 3, 4, 5], handle(e => {
     console.log(e.get('value'))
@@ -399,6 +442,8 @@ group([
     }))
 ])
 ```
+
+</details>
 
 ### `forIn()`
 Loops over enumerable string properties of an object. Accepts an enumerable object or a symbol with a description matching the key to read from the event object. 
@@ -417,6 +462,9 @@ Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"l
 forIn(iterable: symbol | Record<any, any>, handler: EventHandler)
 forIn(iterable: Record<any, any>, id: string, handler: EventHandler)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 forIn({ a: 1, b: 2, c: 3 }, handle(e => {
     console.log(e.get('value'))
@@ -431,6 +479,8 @@ group([
 ])
 ```
 
+</details>
+
 ## FS handlers
 
 ### `fs.mkdir()`
@@ -440,6 +490,9 @@ Accepts either a `string` path or a `symbol` with a description matching a key t
 ```ts
 fs.mkdir(path: string | symbol, options: MkdirOptions)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 fs.mkdir('./relative/to/soybean-config/')
 ```
@@ -450,12 +503,17 @@ group([
 ])
 ```
 
+</details>
+
 ### `fs.readdir()`
 Reads the contents of a directory and saves it on the event object.
 Accepts a `string` path or a `symbol` with a description matching a key to read from the event object in place of the path, a `string` which is used to save the results on the event object and read options the same as in the native [`fs.readdir`](https://nodejs.org/api/fs.html#fsreaddirpath-options-callback).
 ```ts
 fs.readdir(path: string | symbol, saveTo: string, options?: ReaddirOptions)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     fs.readdir('./relative/to/soybean-config/', 'my-dir'),
@@ -463,13 +521,18 @@ group([
 ])
 ```
 
-### `rmdir()`
+</details>
+
+### `fs.rmdir()`
 Removes a directory.
 Accepts a `string` path or a `symbol` with a description matching a key to read from the event object and an options object (see native [`fs.rmdir`](https://nodejs.org/api/fs.html#fsrmdirpath-options-callback) options).
 
 ```ts
 fs.rmdir(path: string | symbol, options?: RmdirOptions)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 fs.rmdir('./path/to/remove', { recursive: true })
 ```
@@ -480,23 +543,33 @@ group([
 ])
 ```
 
-### `rm()`
-Remove a file or directory.
+</details>
+
+### `fs.rm()`
+Removes a file or directory.
 Accepts a `string` path or a `symbol` with a description matching the key to read from the event object and an options object same as in native [`fs.rm`](https://nodejs.org/api/fs.html#fsrmpath-options-callback).
 
 ```ts
 fs.rm(path: string | symbol, options>: RmOptions)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 fs.rm('./my/path.txt', { force: true })
 ```
 
-### `readFile()`
+</details>
+
+### `fs.readFile()`
 Reads the contents of a file and saves it on the event object to be later used inside another handler.
-Accepts a `string` path or `symbol` with a description matching the key to read from the event object and a `string` key used to save the file data on the event object.
+Accepts a `string` path or `symbol` with a description matching the key to read from the event object and a string `key` used to save the file data on the event object.
 ```ts
 fs.readFile(path: string | symbol, saveTo: string, options?: ReadFileOptions)
 ```
+<details>
+<summary>Code snippet</summary>
+
 ```ts
 group([
     fs.readFile('./my/config.txt', 'my-config', { encoding: 'utf-8' }),
@@ -504,6 +577,61 @@ group([
 ])
 ```
 
-### `writeFile()`
-### `copyFile()`
-### `chmod()`
+</details>
+
+### `fs.writeFile()`
+Writes data to a file.
+Accepts a `string` file path or `symbol` with a description matching the key to read from the event object, content which can be a `Stream`, `ArrayBuffer`, `string` and many others, including a `symbol` similarly to the path parameter. An optional `options` object is also accepted (See the native [`fs.writeFile`](https://nodejs.org/api/fs.html#fswritefilefile-data-options-callback) documentation).
+```ts
+fs.writeFile(path: string | symbol, content: string | ..., options?: WriteFileOptions )
+```
+<details>
+<summary>Code snippet</summary>
+
+```ts
+fs.writeFile('./my/file.txt', 'My file content!', 'utf-8')
+```
+```ts
+group([
+    set('my-content', 'My file content!'),
+    fs.writeFile('./my/file.txt', Symbol('my-content'), { encoding: 'utf-8' })
+])
+```
+
+</details>
+
+### `fs.copyFile()`
+Copies a file from `src` to `dest`.
+`src` and `dest` can both support regular strings and `symbols` which must have a descriptions matching keys to read from the event object. Additionally a `mode` parameter is accepted letting you specify access permissions. See native [`fs.copyFile`](https://nodejs.org/api/fs.html#fscopyfilesrc-dest-mode-callback) for more information.
+```ts
+fs.copyFile(src: string | symbol, dest: string | symbol, mode?: number)
+```
+<details>
+<summary>Code snippet</summary>
+
+```ts
+fs.copyFile('./src/file.txt', './dest/file.txt', constants.COPYFILE_EXCL)
+```
+```ts
+group([
+    set('src', './src/file.txt'),
+    set('dest', './dest/file.txt'),
+    fs.copyFile('{{src}}', '{{dest}}')
+])
+```
+</details>
+
+### `fs.chmod()`
+Changes access permissions of a file or directory.
+Accepts a `string` path or `symbol` with a description matching the key to read from the event object and `mode` parameter specifying the item's permissions. See native [`fs.chmod`](https://nodejs.org/api/fs.html#fsfchmodfd-mode-callback) for more information.
+```ts
+fs.chmod(src: string | symbol, mode: number)
+```
+<details>
+<summary>Code snippet</summary>
+
+```ts
+fs.chmod('./path/to/file.js', 0o400)
+```
+</details>
+
