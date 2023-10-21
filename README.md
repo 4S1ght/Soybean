@@ -49,7 +49,10 @@ Now Soybean is capable of:
             - [`fs.writeFile()`](#fswritefile)
             - [`fs.copyFile()`](#fscopyfile)
             - [`fs.chmod()`](#fschmod)
-        - [Child process](#child-process-handlers)
+        - [Child process](#cp-handlers)
+            - [cp.kill](#cpkill)
+            - [cp.revive](#cprevive)
+            - [cp.restart](#cprestart)
         - [Shell](#shell-handlers)
         - [JSON](#json)
         - [Network](#network-handlers)
@@ -635,3 +638,23 @@ fs.chmod('./path/to/file.js', 0o400)
 ```
 </details>
 
+## CP Handlers
+Handlers for child process management.
+
+### `cp.kill()`
+Kills a child process of a given name.
+```ts
+cp.kill(process: string)
+```
+
+### `cp.revive()`
+Revives a dead child process of a given name.
+```ts
+cp.kill(process: string)
+```
+
+### `cp.restart()`
+Restarts a child process of a given name.
+```ts
+cp.kill(process: string)
+```
