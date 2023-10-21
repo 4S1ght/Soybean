@@ -586,7 +586,7 @@ group([
 Writes data to a file.
 Accepts a `string` file path or `symbol` with a description matching the key to read from the event object, content which can be a `Stream`, `ArrayBuffer`, `string` and many others, including a `symbol` similarly to the path parameter. An optional `options` object is also accepted (See the native [`fs.writeFile`](https://nodejs.org/api/fs.html#fswritefilefile-data-options-callback) documentation).
 ```ts
-fs.writeFile(path: string | symbol, content: string | ..., options?: WriteFileOptions )
+fs.writeFile(path: string | symbol, content: string | ..., options?: WriteFileOptions)
 ```
 <details>
 <summary>Code snippet</summary>
@@ -662,3 +662,32 @@ Unlike `cp.kill` and `cp.revive`, `cp.restart` works no matter if the child proc
 ```ts
 cp.kill(process: string)
 ```
+
+## Shell handlers
+
+### `shell.spawn()`
+Spawns a temporary child process using the specified command.  
+Accepts a `string` command and an `options` object - An altered version of the options object used by Node's native [`cp.spawn`](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options).
+
+```ts
+shell.spawn(command: string | string[], options?: SpawnOptions)
+```
+<details>
+<summary>Code snippet</summary>
+
+```ts
+// Spawn TSC and compile some code
+shell.spawn('tsc')
+// Spawn TSC with custom parameters
+shell.spawn(['tsc', '--outDir', './dest/'])
+// SPawn the process muted
+shell.spawn(['tsc', '--outDir', './dest/'], { stdio: 'none' })
+```
+
+</details>
+
+The altered `options` object properties:
+- `stdio` - which accepts the following values:
+    - `"all"` (default) - Pipes `stdout` and `stderr` to the terminal.
+    - `"none"` - Mutes the entire process.
+    - `"takeover"` - Temporarily takes over the terminal's output **and** input, letting you interact with the spawned process until it dies.
