@@ -28,7 +28,7 @@ Now Soybean is capable of:
         - [Watch routines](#watch-routines)
             - [Watch routines configuration options](#watch-routines-configuration-options)
 - [Modules](#modules)
-    - [Event handlers](#handlers-module)
+    - [Event handlers](#event-handlers-module)
         - [Event object](#event-object)
         - [Symbols](#using-symbols)
         - [Miscellaneous handlers](#misc-handlers)
@@ -50,11 +50,14 @@ Now Soybean is capable of:
             - [`fs.copyFile()`](#fscopyfile)
             - [`fs.chmod()`](#fschmod)
         - [Child process](#cp-handlers)
-            - [cp.kill](#cpkill)
-            - [cp.revive](#cprevive)
-            - [cp.restart](#cprestart)
+            - [cp.kill()](#cpkill)
+            - [cp.revive()](#cprevive)
+            - [cp.restart()](#cprestart)
         - [Shell](#shell-handlers)
+            - [shell.spawn()](#shellspawn)
         - [JSON](#json)
+            - [`json.parse()`](#jsonparse)
+            - [`json.stringify()`](#jsonstringify)
         - [Network](#network-handlers)
         
 
@@ -210,7 +213,12 @@ The `options` object also accepts native [fs.watch](https://nodejs.org/docs/late
 # Modules
 
 # Event handlers module
-The handlers module is a set of methods that allow you to configure event handlers which handle events that occur in Soybean during your work. They happen when you save a file, type a command or as you launch Soybean itself.
+The handlers module is a set of methods that allow you to configure event handlers that react events that occur in Soybean during your work. They happen when you save a file, type a command or as you launch Soybean itself.
+
+```ts
+import handlers from 'soybean/handlers'
+```
+
 
 ## Event object
 Each time an event handler is called in Soybean, a new event object is created containing the information about the event that ocurred.
@@ -242,7 +250,7 @@ The different types of events include:
 
 - `TerminalEvent` - Event emitted when a user-specified command is entered in the integrated terminal.
     - `WatchEven.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
-    - `WatchEven.argvRaw` (`"string"`) - The raw string of text passed after the command keyword.
+    - `WatchEven.argvRaw` (`string`) - The raw string of text passed after the command keyword.
         - All of which are available through `event.get()`.
 
 ## Using symbols
@@ -734,7 +742,7 @@ group([
 
 ### `json.stringify()`
 Stringifies an object into a string.  
-Accepts a string `key` to read the data from the event object and optionally a `saveTo` key, which is used to save the resulting string back on the event object. If `saveTo` is not provided then the stringified information will be saved back under the same `key` it was read from.
+Accepts a string `key` to read the data from the event object and optionally a `saveTo` key, which is used to save the resulting string back on the event object. If `saveTo` is not provided then the string will be saved back under the same `key` it was read from.
 
 Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#replacer) function can be provided for custom parsing directives.
 
