@@ -698,8 +698,8 @@ The altered `options` object properties:
 Handlers used primarily for parsing JSON data, whether for manipulating files or parsing fetch request bodies.
 
 ### `json.parse()`
-Parses a JSON `string`.  
-Accepts a string `key` used to read read the data from the event object and optionally a `saveTo` key, which is used to save the parsed data onto the event object. If `saveTo` is not provided then the parsed information will be saved back to the same `key` it was read from.
+Parses a JSON string.  
+Accepts a string `key` used to read the data from the event object and optionally a `saveTo` key, which is used to save the parsed data onto the event object. If `saveTo` is not provided then the parsed information will be saved back under the same `key` it was read from.
 
 Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
 
@@ -723,13 +723,46 @@ json.parse(key: string, saveTo: string, replacer: Function)
 ```ts
 group([
     // Get some data
-    set('source-key', `{ "some": ["data"] }`),
-    // Parse the data and save it to `dest-key`
-    json.parse('source-key', 'dest-key'),
+    set('src', `{ "some": ["data"] }`),
+    // Parse the data and save it to `dest`
+    json.parse('src', 'dest'),
     // Read the data
-    handle(e => console.log(e.get('dest-key')))
+    handle(e => console.log(e.get('dest')))
 ])
 ```
 </details>
 
 ### `json.stringify()`
+Stringifies an object into a string.
+Accepts a string `key` to read the data from the event object and optionally a `saveTo` key, which is used to save the resulting string back on the event object. If `saveTo` is not provided then the stringified information will be saved back under the same `key` it was read from.
+
+Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
+
+```ts
+// Stringify and replace the source object
+json.stringify(key: string)
+
+// Stringify and replace the source object (with custom directives)
+json.stringify(key: string, replacer: Function)
+
+// Stringify and save under another `key`
+json.stringify(key: string, saveTo: string)
+
+// Stringify and save under another `key` (with custom directives)
+json.stringify(key: string, saveTo: string, replacer: Function)
+```
+
+<details>
+<summary>Code snippet</summary>
+
+```ts
+group([
+    // Get some data
+    set('data', { some: ["data"] }),
+    // Stringify the object and update the `data` variable
+    json.stringify('data'),
+    // Read the data
+    handle(e => console.log(e.get('data')))
+])
+```
+</details>
