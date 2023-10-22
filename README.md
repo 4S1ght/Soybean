@@ -50,15 +50,16 @@ Now Soybean is capable of:
             - [`fs.copyFile()`](#fscopyfile)
             - [`fs.chmod()`](#fschmod)
         - [Child process](#cp-handlers)
-            - [cp.kill()](#cpkill)
-            - [cp.revive()](#cprevive)
-            - [cp.restart()](#cprestart)
+            - [`cp.kill()`](#cpkill)
+            - [`cp.revive()`](#cprevive)
+            - [`cp.restart()`](#cprestart)
         - [Shell](#shell-handlers)
-            - [shell.spawn()](#shellspawn)
+            - [`shell.spawn()`](#shellspawn)
         - [JSON](#json)
             - [`json.parse()`](#jsonparse)
             - [`json.stringify()`](#jsonstringify)
         - [Network](#network-handlers)
+            - [`net.fetch()`](#netfetch)
         
 
 # Getting started
@@ -772,5 +773,36 @@ group([
     // Read the data
     handle(e => console.log(e.get('data')))
 ])
+```
+</details>
+
+## Network handlers
+Network handlers let you make network requests, ping servers, fetch information, etc.
+
+### `net.fetch()`
+Makes a network request using the fetch API.  
+Accepts `string` network address and an `init` object containing all the configuration, such as request type, headers, etc.
+
+Additionally, besides the usual [fetch request options](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#supplying_request_options), the `init` object accepts a `cb` callback function which can be used to access the response and interact with the event object.
+
+```ts
+net.fetch(input: RequestInfo, init?: RequestInit)
+```
+
+<details>
+<summary>Code snippet</summary>
+
+```ts
+net.fetch('https://github.com', {
+    method: "GET",
+    headers: { "Content-Type": "text/html" },
+    cb: async (res, event) => {
+        // Parse the body
+        const body = await res.text()
+        // Save the body on the event object
+        // to further process it in the next event handler.
+        event.set('response', body)
+    }
+})
 ```
 </details>
