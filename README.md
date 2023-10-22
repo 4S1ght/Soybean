@@ -605,7 +605,7 @@ group([
 
 ### `fs.copyFile()`
 Copies a file from `src` to `dest`.
-`src` and `dest` can both support regular strings and `symbols` which must have a descriptions matching keys to read from the event object. Additionally a `mode` parameter is accepted letting you specify access permissions. See native [`fs.copyFile`](https://nodejs.org/api/fs.html#fscopyfilesrc-dest-mode-callback) for more information.
+`src` and `dest` both support regular `strings` and `symbols`. The symbols must have descriptions matching keys to read from the event object. Additionally a `mode` parameter is accepted letting you specify access permissions. See native [`fs.copyFile`](https://nodejs.org/api/fs.html#fscopyfilesrc-dest-mode-callback) for more information.
 ```ts
 fs.copyFile(src: string | symbol, dest: string | symbol, mode?: number)
 ```
@@ -693,3 +693,43 @@ The altered `options` object properties:
     - `"none"` - Mutes the entire process.
     - `"takeover"` - Temporarily takes over the terminal's output **and** input, letting you interact with the spawned process until it dies.
     
+
+## JSON handlers
+Handlers used primarily for parsing JSON data, whether for manipulating files or parsing fetch request bodies.
+
+### `json.parse()`
+Parses a JSON `string`.  
+Accepts a string `key` used to read read the data from the event object and optionally a `saveTo` key, which is used to save the parsed data onto the event object. If `saveTo` is not provided then the parsed information will be saved back to the same `key` it was read from.
+
+Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
+
+```ts
+// Parse and replace the source string
+json.parse(key: string)
+
+// Parse and replace the source string (with custom directives)
+json.parse(key: string, replacer: Function)
+
+// Parse and save under another `key`
+json.parse(key: string, saveTo: string)
+
+// Parse and save under another `key` (with custom directives)
+json.parse(key: string, saveTo: string, replacer: Function)
+```
+
+<details>
+<summary>Code snippet</summary>
+
+```ts
+group([
+    // Get some data
+    set('source-key', `{ "some": ["data"] }`),
+    // Parse the data and save it to `dest-key`
+    json.parse('source-key', 'dest-key'),
+    // Read the data
+    handle(e => console.log(e.get('dest-key')))
+])
+```
+</details>
+
+### `json.stringify()`
