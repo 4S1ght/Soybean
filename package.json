@@ -1,6 +1,6 @@
 {
     "name": "soybean",
-    "version": "0.1.3",
+    "version": "0.2.0",
     "description": "Task automation and convenience tool for building NodeJS projects.",
     "main": "build/exports/index.js",
     "type": "module",
@@ -38,7 +38,9 @@
     },
     "homepage": "https://github.com/4S1ght/Soybean#readme",
     "keywords": [
-        "soybean", "automation", "cli"
+        "soybean",
+        "automation",
+        "cli"
     ],
     "devDependencies": {
         "@types/node": "^20.4.5"
