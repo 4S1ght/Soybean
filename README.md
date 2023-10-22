@@ -733,10 +733,10 @@ group([
 </details>
 
 ### `json.stringify()`
-Stringifies an object into a string.
+Stringifies an object into a string.  
 Accepts a string `key` to read the data from the event object and optionally a `saveTo` key, which is used to save the resulting string back on the event object. If `saveTo` is not provided then the stringified information will be saved back under the same `key` it was read from.
 
-Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
+Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#replacer) function can be provided for custom parsing directives.
 
 ```ts
 // Stringify and replace the source object
