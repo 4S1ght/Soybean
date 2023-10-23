@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.1]
+
+### Fixed
+- Fixed `soybean init` command not being able to copy a missing template file.
+
 ## [0.3.0]
 
 ### Fixed
