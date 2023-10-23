@@ -32,7 +32,12 @@ export function mkdir<Event extends E.SoybeanEvent = E.SoybeanEvent>
             const target = helpers.getStoredValue(e, directory)
             helpers.getLoggerType(e.source)(`mkdir "${target}"`)
 
-            const $options = options !== null && typeof options === 'object' ? { recursive: true, ...options} : options
+            const $options = typeof options === 'undefined'
+                ? { recursive: true }
+                : typeof options === 'object' && options !== null
+                    ? { recursive: true, ...options }
+                    : options
+
             const readyPath = helpers.toCWDRelative(target)
             await fsp.mkdir(readyPath, $options)
             end(null)
