@@ -17,8 +17,8 @@ type Replacer = (this: any, key: string, value: any) => any
  *
  * Alias for `JSON.parse`
  */
-export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, reviver?: Reviver): E.EventHandler<Event>
-export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveTo?: string, reviver?: Reviver): E.EventHandler<Event>
+export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, reviver?: Reviver                                  ): E.EventHandler<Event>
+export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveTo?: string,                  reviver?: Reviver): E.EventHandler<Event>
 export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveOrReviver?: string | Reviver, reviver?: Reviver): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
@@ -52,25 +52,30 @@ export function parse<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string
  *
  * Alias for `JSON.stringify`
  */
-export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, replacer?: Replacer): E.EventHandler<Event>
-export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveTo?: string, replacer?: Replacer): E.EventHandler<Event>
-export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveOrReplacer?: string | Replacer, replacer?: Replacer): E.EventHandler<Event> {
+export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, replacer?: Replacer,                space?: string|number                                          ): E.EventHandler<Event>
+export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveTo?: string,                    replacer?: Replacer,                      space?: string|number): E.EventHandler<Event>
+export function stringify<Event extends E.SoybeanEvent = E.SoybeanEvent>(key: string, saveOrReplacer?: string | Replacer, spaceOrReplacer?: Replacer|string|number, space?: string|number): E.EventHandler<Event> {
+
     return (e) => new Promise<null | Error>(async end => {
         try {
             
             helpers.getLoggerType(e.source)(`json.stringify "${key}"`)
 
+            let _saveTo: string = typeof saveOrReplacer === 'string' ? saveOrReplacer : key
+
+            let _replacer: Replacer | undefined = typeof saveOrReplacer === 'function'
+                ? saveOrReplacer
+                : typeof spaceOrReplacer === 'function'
+                    ? spaceOrReplacer
+                    : undefined
+
+            let _space: string | number | undefined = ['string', 'number'].includes(typeof spaceOrReplacer)
+                ? spaceOrReplacer as string | number
+                : space
+
             let initialValue: string = e.get(key)
-            let parsedValue: any
-            
-            if (typeof saveOrReplacer === 'function') {
-                parsedValue = JSON.stringify(initialValue, saveOrReplacer)
-                e.set(key, parsedValue)
-            }
-            if (['undefined', 'string'].includes(typeof saveOrReplacer)) {
-                parsedValue = JSON.stringify(initialValue, replacer)
-                e.set((saveOrReplacer || key) as string, parsedValue)
-            }
+            let parsedValue = JSON.stringify(initialValue, _replacer, _space)
+            e.set(_saveTo, parsedValue)
 
             end(null)
             
