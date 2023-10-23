@@ -713,16 +713,10 @@ Accepts a string `key` used to read the data from the event object and optionall
 Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
 
 ```ts
-// Parse and replace the source string
+// Overloads
 json.parse(key: string)
-
-// Parse and replace the source string (with custom directives)
 json.parse(key: string, replacer: Function)
-
-// Parse and save under another `key`
 json.parse(key: string, saveTo: string)
-
-// Parse and save under another `key` (with custom directives)
 json.parse(key: string, saveTo: string, replacer: Function)
 ```
 
@@ -745,20 +739,16 @@ group([
 Stringifies an object into a string.  
 Accepts a string `key` to read the data from the event object and optionally a `saveTo` key, which is used to save the resulting string back on the event object. If `saveTo` is not provided then the string will be saved back under the same `key` it was read from.
 
-Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#replacer) function can be provided for custom parsing directives.
+Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#replacer) function can be provided for custom parsing directives, otherwise an optional `space` setting is used to specify spaces or tabs used for pretty formatting.
 
 ```ts
-// Stringify and replace the source object
+// Overloads
 json.stringify(key: string)
-
-// Stringify and replace the source object (with custom directives)
 json.stringify(key: string, replacer: Function)
-
-// Stringify and save under another `key`
 json.stringify(key: string, saveTo: string)
-
-// Stringify and save under another `key` (with custom directives)
+json.stringify(key: string, saveTo: string, space: number|string)
 json.stringify(key: string, saveTo: string, replacer: Function)
+json.stringify(key: string, saveTo: string, replacer: Function, space: number|string)
 ```
 
 <details>
