@@ -1,8 +1,13 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [0.3.0]
+
+### Fixed
+- Fixed a `Program` class conflict that ocurred when Soybean was initialized with combination of a local configuration file using local modules and a globally installed version.
+
+## [0.2.0]
 
 ### Added
 - Added `event.stopPropagation` function allowing to half the event inside a group handler.

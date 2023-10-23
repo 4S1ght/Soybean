@@ -25,6 +25,7 @@
         "sb": "./build/bin/bin.js"
     },
     "scripts": {
+        "test": "sb run .",
         "zshperm": "chmod +x ./build/bin/bin.js"
     },
     "repository": {

@@ -2,15 +2,21 @@
 // Imports ==========================================================
 
 import fs from 'fs'
+import path from 'path'
 import c from 'chalk'
 
 import type { SoybeanConfig } from "./types.js"
 
+import * as constants from '../constants.js'
 import ProcessManager from "./process/process_mgr.js"
 import Terminal from "./terminal/terminal.js"
 import LiveTerminal from "./terminal/liveterminal.js"
 import { LaunchEvent, TerminalEvent, WatchEvent } from "./events/events.js"
 import commands from "./terminal/liveterminal_commands.js"
+
+import * as url from 'url'
+const __filename = url.fileURLToPath(import.meta.url)
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // Helpers ==========================================================
 
@@ -26,14 +32,15 @@ const createRateLimiter = (time: number) => {
     return executor
 }
 
-
 // Exports ==========================================================
 
 export default class Program {
+    
+    public $$SOYBEAN_RELEASE = constants.RELEASE_VERSION
 
     private static instance: Program
     public static getLiveInstance = () => this.instance
-
+    
     public config: SoybeanConfig
     private processManager: ProcessManager
     private liveTerminal: LiveTerminal
