@@ -25,7 +25,7 @@ function extractArgv(argv: string | string[]): [string, string[]] {
  * as child processes configured through the `cp` object, instead lets you spawn 
  * a quick shell process, like a TypeScript compiler, Git's push/pull actions, etc.
  */
-export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: string | string[], settings: ExecOptions = {}): E.EventHandler<Event> {
+export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: string | string[] | Symbol, settings: ExecOptions = {}): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(end => {
 
         const stdioOptions = {
@@ -34,12 +34,13 @@ export function spawn<Event extends E.SoybeanEvent = E.SoybeanEvent>(command: st
             takeover: ['pipe', 'inherit', 'inherit']    // takeover - stdout/stderr inherited, stdin piped manually due to strange behavior.
         }
 
-        const [cmd, spawnargs] = extractArgv(command)
+        const commandTarget = Array.isArray(command) ? command.map(x => helpers.getStoredValue(e, x)) : helpers.getStoredValue(e, command)
+        const [cmd, spawnargs] = extractArgv(commandTarget)
         const log = helpers.getLoggerType(e.source)
         const lt = LiveTerminal.getLiveInstance()
         const stdio = stdioOptions[settings.stdio || 'all'] as StdioOptions
 
-        log(`spawn "${typeof command === 'string' ? command : command.join(' ')}"`)
+        log(`spawn "${typeof commandTarget === 'string' ? commandTarget : commandTarget.join(' ')}"`)
 
         if (!stdio) return end(Error(`spawn stdio must be one of: ${Object.keys(stdioOptions).map(x => `"${x}"`).join(', ')}.`))
 

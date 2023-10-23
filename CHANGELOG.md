@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Added `shell.spawn()` `symbol` parameter support for the command `string/array`. If an `array` is used to allow command parameters, each of the `array` members also supports `symbols` and `string templates`.
+
 ## [0.3.1]
 
 ### Fixed
