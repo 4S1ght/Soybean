@@ -328,7 +328,7 @@ export function forIn<Event extends E.SoybeanEvent = E.SoybeanEvent>
             }
 
             for (const key in $iterable) {
-                if (Object.prototype.hasOwnProperty.call(iterable, key)) {
+                if (Object.prototype.hasOwnProperty.call($iterable, key)) {
 
                     event.set($getFieldName('object'), iterable)
                     event.set($getFieldName('key'), key)

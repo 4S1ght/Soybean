@@ -8,6 +8,9 @@ All notable changes to this project are documented in this file.
 - Added `shell.spawn()` `symbol` parameter support for the command `string/array`. If an `array` is used to allow command parameters, each of the `array` members also supports `symbols` and `string templates`.
 - Added `json.stringify()` support for a `space` parameter, allowing a nicely formatted output.
 
+### Fixed
+- Fixed `forIn()` handler issue that caused the loop that stopped the loop from ever iterating over any object key when a `symbol` was used for reading event object data.
+
 ## [0.3.1]
 
 ### Fixed
