@@ -11,7 +11,7 @@ import * as constants from '../constants.js'
 import ProcessManager from "./process/process_mgr.js"
 import Terminal from "./terminal/terminal.js"
 import LiveTerminal from "./terminal/liveterminal.js"
-import { LaunchEvent, TerminalEvent, WatchEvent } from "./events/events.js"
+import { SoybeanEvent, LaunchEvent, TerminalEvent, WatchEvent } from "./events/events.js"
 import commands from "./terminal/liveterminal_commands.js"
 
 import * as url from 'url'
@@ -30,6 +30,17 @@ const createRateLimiter = (time: number) => {
         }
     }
     return executor
+}
+
+const createBreaker = (cooldown: number, onBreak: Function) => {
+    let runCount = 0
+    function trigger(callback: Function) {
+        runCount++
+        if (runCount > constants.MAX_FAILED_RETRY_COUNT) onBreak()
+        else callback()
+        setTimeout(() => runCount = 0, cooldown * constants.MAX_FAILED_RETRY_COUNT + cooldown * 0.9)
+    }
+    return trigger
 }
 
 // Exports ==========================================================
@@ -58,6 +69,7 @@ export default class Program {
         this.cwd = cwd
         await this._runWatchRoutines()
         await this._runLaunchRoutines()
+        await this._runIntervalRoutines()
         await this._spawnChildProcesses()
         await this._setupTerminal()
     }
@@ -103,6 +115,32 @@ export default class Program {
             
         }
 
+    }
+
+    private async _runIntervalRoutines() {
+
+        if (this.config.routines && this.config.routines.interval) 
+        for (let i = 0; i < this.config.routines.interval.length; i++) {
+
+            const { time, handle } = this.config.routines.interval[i]
+            const trigger = createBreaker(time, () => {
+                clearInterval(interval)
+                Terminal.WARN(`Infinite error loop detected - Routine #${i} disabled.`)
+            })
+
+            const interval = setInterval(async() => {
+
+                const event = new SoybeanEvent()
+                const error = await handle(event)
+    
+                if (error) {
+                    trigger(() => Terminal.ERROR(`An error was encountered while performing operation:`, error))
+                }
+
+            }, time)
+            
+        }
+        
     }
 
     private async _spawnChildProcesses() {

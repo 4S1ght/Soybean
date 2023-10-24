@@ -12,3 +12,6 @@ export const CONFIGURATION_FILENAMES = [ DEFAULT_CONFIGURATION_FILENAME ]
 // VERSIONS
 export const RELEASE_VERSION_STRING = (JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf-8')) as Record<string, string>).version
 export const RELEASE_VERSION = RELEASE_VERSION_STRING.split('.').map(x => Number(x)) as [number, number, number]
+
+// SAFEGUARDS
+export const MAX_FAILED_RETRY_COUNT = 5
