@@ -8,6 +8,11 @@ All notable changes to this project are documented in this file.
 - Added `shell.spawn()` `symbol` parameter support for the command `string/array`. If an `array` is used to allow command parameters, each of the `array` members also supports `symbols` and `string templates`.
 - Added `json.stringify()` support for a `space` parameter, allowing a nicely formatted output.
 - Added interval routines support accessible through the `routines` object. Additionally this routine includes a mechanism that will cause the it to stop if it detects too many subsequent errors
+- Event object data can now be read using normal dot/bracket donation. Setting properties this way is not possible due to conflicts with object properties assigned dynamically inside certain event handlers.
+    ```ts
+    e.set('arr1', ['my', 'array'])
+    console.log(e.arr1)
+    ```
 
 ### Fixed
 - Fixed `forIn()` handler issue that caused the loop that stopped the loop from ever iterating over any object key when a `symbol` was used for reading event object data.

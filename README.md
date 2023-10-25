@@ -232,6 +232,11 @@ The different types of events include:
         ```ts
         event.set(key: string, data: any)
         ```
+        Alternatively, it is possible to read properties directly (Only available as read-only. It isn't possible to **set** data this way).
+        ```ts
+        event.key = 'string'
+        event["key"] = 'string'
+        ```
     - `SoybeanEvent.get()` - Used to retrieve a piece of data set on the event object with `set()`.
         ```ts
         event.get(key: string)
