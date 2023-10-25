@@ -5,15 +5,6 @@ import type { EventHandler, TerminalEvent, LaunchEvent } from './events/events.j
 import type FS from 'fs'
 
 // ==================================================================
-//                       TYPE EQUALITY GUARDS
-// ==================================================================
-
-export function assert<T extends never>() {}
-type TypeEqualityGuard<A, B> = Exclude<A, B> | Exclude<B, A>
-
-assert<TypeEqualityGuard<{}, {}>>()
-
-// ==================================================================
 //                             ROUTINES
 // ==================================================================
 
