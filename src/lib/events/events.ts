@@ -7,7 +7,21 @@ export type EventType = 'event' | 'terminal' | 'launch' | 'watcher'
 
 // Events ===========================================================
 
+export interface SoybeanEvent {
+    [key: string]: any
+}
 export class SoybeanEvent {
+
+    constructor() {
+        // Issue: https://github.com/4S1ght/Soybean/issues/11
+        // Using a proxy to enable dot/bracket notation instead of e.set() and e.get() for cleaner syntax
+        // Only allows getters as setters produce too many conflicts with handler-scoped event properties.
+        return new Proxy<SoybeanEvent>(this, {
+            get: (target, prop: string) => {
+                return target[prop] || target.get(prop)
+            }
+        })
+    }
 
     /** The event source specifies from where the event had originated from. */
     public source: EventType = 'event'
