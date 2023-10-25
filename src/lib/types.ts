@@ -31,6 +31,11 @@ export interface Routines {
             rateLimiter?: number
         }
     }>
+    /** Interval routines configuration. */
+    interval?: Array<{
+        time: number
+        handle: EventHandler
+    }>
 }
 
 export const ZRoutines = z.object({
@@ -39,6 +44,10 @@ export const ZRoutines = z.object({
         file: string(),
         handle: z.function(),
         options: z.any().optional()
+    })).optional(),
+    interval: array(z.object({
+        time: number(),
+        handle: z.function()
     })).optional()
 })
 
