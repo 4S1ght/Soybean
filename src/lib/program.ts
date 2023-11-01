@@ -11,7 +11,7 @@ import * as constants from '../constants.js'
 import ProcessManager from "./process/process_mgr.js"
 import Terminal from "./terminal/terminal.js"
 import LiveTerminal from "./terminal/liveterminal.js"
-import { SoybeanEvent, LaunchEvent, TerminalEvent, WatchEvent } from "./events/events.js"
+import { SoybeanEvent, LaunchEvent, TerminalEvent, WatchEvent, ChildProcessEvent } from "./events/events.js"
 import commands from "./terminal/liveterminal_commands.js"
 
 import * as url from 'url'
@@ -150,12 +150,31 @@ export default class Program {
 
         // Set information messages for child process events
         for (const [name, process] of this.processManager.children) {
+
             process.on('close',         ()    =>        Terminal.EXIT (`Process "${name}" closed with exit code ${process.ref.exitCode}.`))
             process.on('kill',          ()    =>        Terminal.INFO (`Killed process "${name}".`))
             process.on('kill-error',    (err) =>        Terminal.ERROR(`An error was encountered while attempting to kill "${name}".`, err))
             process.on('restart',       ()    =>        Terminal.INFO (`Restarted process "${name}".`))
             process.on('restart-error', (err) =>        Terminal.ERROR(`An error was encountered while attempting to restart "${name}".`, err))
             process.on('spawn',         ()    =>        Terminal.INFO(`Process "${name}" is running.`))
+
+            // Child process lifecycle routines
+
+            if (this.config.cp[name].onClose)
+            process.on('close', () => { 
+                this.config.cp![name].onClose!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
+            })
+
+            if (this.config.cp[name].onKill)
+            process.on('kill', () => { 
+                this.config.cp![name].onKill!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
+            })
+
+            if (this.config.cp[name].onSpawn)
+            process.on('spawn', () => { 
+                this.config.cp![name].onSpawn!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
+            })
+
         }
 
         await this.processManager.startEach((process) => {
