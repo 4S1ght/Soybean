@@ -15,6 +15,7 @@ import { SoybeanEvent, LaunchEvent, TerminalEvent, WatchEvent, ChildProcessEvent
 import commands from "./terminal/liveterminal_commands.js"
 
 import * as url from 'url'
+import { kMaxLength } from 'buffer'
 const __filename = url.fileURLToPath(import.meta.url)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
@@ -32,13 +33,19 @@ const createRateLimiter = (time: number) => {
     return executor
 }
 
-const createBreaker = (cooldown: number, onBreak: Function) => {
+interface BreakerConfig {
+    cooldown: number
+    threshold: number
+    onBreak: Function
+    onTrigger: Function
+}
+const createBreaker = ({ cooldown, threshold, onBreak, onTrigger}: BreakerConfig) => {
     let runCount = 0
-    function trigger(callback: Function) {
+    function trigger() {
         runCount++
-        if (runCount > constants.MAX_FAILED_RETRY_COUNT) onBreak()
-        else callback()
-        setTimeout(() => runCount = 0, cooldown * constants.MAX_FAILED_RETRY_COUNT + cooldown * 0.9)
+        if (runCount > kMaxLength) onBreak()
+        else onTrigger()
+        setTimeout(() => runCount = 0, cooldown * threshold + cooldown * 0.9)
     }
     return trigger
 }
@@ -123,9 +130,18 @@ export default class Program {
         for (let i = 0; i < this.config.routines.interval.length; i++) {
 
             const { time, handle } = this.config.routines.interval[i]
-            const trigger = createBreaker(time, () => {
-                clearInterval(interval)
-                Terminal.WARN(`Infinite error loop detected - Routine #${i} disabled.`)
+            let errorMessage: Error
+
+            const trigger = createBreaker({
+                cooldown: time,
+                threshold: constants.BREAKER_INTERVAL_ERROR_MAX_COUNT,
+                onTrigger: () => {
+                    Terminal.ERROR(`An error was encountered while performing operation:`, errorMessage)
+                },
+                onBreak: () => {
+                    clearInterval(interval)
+                    Terminal.WARN(`Infinite error loop detected - Routine #${i} disabled.`)
+                }
             })
 
             const interval = setInterval(async() => {
@@ -134,7 +150,8 @@ export default class Program {
                 const error = await handle(event)
     
                 if (error) {
-                    trigger(() => Terminal.ERROR(`An error was encountered while performing operation:`, error))
+                    errorMessage = error
+                    trigger()
                 }
 
             }, time)
@@ -159,21 +176,52 @@ export default class Program {
             process.on('spawn',         ()    =>        Terminal.INFO(`Process "${name}" is running.`))
 
             // Child process lifecycle routines
+            const cooldown = constants.BREAKER_PROCESS_RESTART_COOLDOWN
+            const threshold = constants.BREAKER_PROCESS_RESTART_MAX_COUNT
 
-            if (this.config.cp[name].onClose)
-            process.on('close', () => { 
-                this.config.cp![name].onClose!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
-            })
+            if (this.config.cp[name].onClose) {
+                const trigger = createBreaker({
+                    cooldown,
+                    threshold,
+                    onTrigger: () => {
+                        this.config.cp![name].onClose!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref))
+                    },
+                    onBreak: () => {
+                        Terminal.WARN(`The "onClose" event handler for process "${name}" has been blocked as it seems to be causing in an infinite loop.`)
+                        process.removeListener('close', trigger)
+                    }
+                })
+                process.on('close', trigger)
+            }
 
-            if (this.config.cp[name].onKill)
-            process.on('kill', () => { 
-                this.config.cp![name].onKill!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
-            })
+            if (this.config.cp[name].onKill) {
+                const trigger = createBreaker({
+                    cooldown,
+                    threshold,
+                    onTrigger: () => {
+                        this.config.cp![name].onKill!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref))
+                    },
+                    onBreak: () => {
+                        Terminal.WARN(`The "onKill" event handler for process "${name}" has been blocked as it seems to be causing in an infinite loop.`)
+                        process.removeListener('kill', trigger)
+                    }
+                })
+                process.on('close', trigger)
+            }
 
-            if (this.config.cp[name].onSpawn)
-            process.on('spawn', () => { 
-                this.config.cp![name].onSpawn!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref)) 
-            })
+            if (this.config.cp[name].onSpawn) {
+                const trigger = createBreaker({
+                    cooldown,
+                    threshold,
+                    onTrigger: () => {
+                        this.config.cp![name].onSpawn!(new ChildProcessEvent(name, this.processManager.children.get(name)!.ref))
+                    },
+                    onBreak: () => {
+                        Terminal.WARN(`The "onSpawn" event handler for process "${name}" has been blocked as it seems to be causing an infinite loop.`)
+                        process.removeListener('spawn', trigger)
+                    }
+                })
+            }
 
         }
 
