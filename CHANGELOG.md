@@ -13,6 +13,23 @@ All notable changes to this project are documented in this file.
     e.set('arr1', ['my', 'array'])
     console.log(e.arr1)
     ```
+- Child processes can now trigger `ChildProcessEvent`'s - `onSpawn`, `onClose` and `onKill` in order to automate certain actions, such as restarting a process if it throws a fatal error, etc...
+    ```js
+    cp: {
+      node: {
+        command: 'node',
+        // Fired when the process closes naturally
+        onClose: handlers.cp.restart('node'),
+        // Fired when killed manually or with another handler
+        onKill: handlers.cp.revive(Symbol('processName')),
+        // Fired on each spawn.
+        onSpawn: handlers.cp.kill('{{processName}}')
+      }
+    }
+    ```
+
+### Changed
+- All `cp` event handlers now support `symbols` for dynamic values, such as `processName` available on a new `ChildProcessEvent` object.
 
 ### Fixed
 - Fixed `forIn()` handler issue that caused the loop that stopped the loop from ever iterating over any object key when a `symbol` was used for reading event object data.
