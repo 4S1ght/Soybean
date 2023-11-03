@@ -39,11 +39,11 @@ interface BreakerConfig {
     onBreak: Function
     onTrigger: Function
 }
-const createBreaker = ({ cooldown, threshold, onBreak, onTrigger}: BreakerConfig) => {
+const createBreaker = ({ cooldown, threshold, onBreak, onTrigger }: BreakerConfig) => {
     let runCount = 0
     function trigger() {
         runCount++
-        if (runCount > kMaxLength) onBreak()
+        if (runCount > threshold) onBreak()
         else onTrigger()
         setTimeout(() => runCount = 0, cooldown * threshold + cooldown * 0.9)
     }
@@ -206,7 +206,7 @@ export default class Program {
                         process.removeListener('kill', trigger)
                     }
                 })
-                process.on('close', trigger)
+                process.on('kill', trigger)
             }
 
             if (this.config.cp[name].onSpawn) {
@@ -221,6 +221,7 @@ export default class Program {
                         process.removeListener('spawn', trigger)
                     }
                 })
+                process.on('spawn', trigger)
             }
 
         }

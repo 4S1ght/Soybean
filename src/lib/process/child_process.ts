@@ -52,7 +52,7 @@ export default class ChildProcess extends EventProxy<ProcessEvent> {
             self.spawnTime = Date.now()
             self.emitSafe('spawn')
             // Resume "close" because it might have been paused by kill()
-            self.resume('spawn')
+            self.resume('close')
         })
 
         this.ref.on('exit', () => {
