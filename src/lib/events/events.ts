@@ -1,9 +1,10 @@
 
 import type FS from 'fs'
+import type CP from 'child_process'
 import type { WatchEventType } from 'fs'
 
 /** Event types used across the map */
-export type EventType = 'event' | 'terminal' | 'launch' | 'watcher'
+export type EventType = 'event' | 'terminal' | 'launch' | 'watcher' | 'child_process'
 
 // Events ===========================================================
 
@@ -155,6 +156,26 @@ export class WatchEvent extends SoybeanEvent {
         this.set('watchEventType', this.watchEventType)
 
     }
+}
+
+export class ChildProcessEvent extends SoybeanEvent {
+
+    public source: EventType = 'child_process'
+    public processName: string
+    public exitCode: number | null
+
+    constructor(name: string, ref: CP.ChildProcess) {
+
+        super()
+
+        this.processName = name
+        this.exitCode = ref.exitCode
+
+        this.set('processName', name)
+        this.set('exitCode', ref.exitCode)
+
+    }
+
 }
 
 // Handlers =========================================================

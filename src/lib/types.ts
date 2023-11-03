@@ -1,7 +1,7 @@
 
 import z, { union, literal, string, number, boolean, array, record, object } from 'zod'
 import type cp from 'child_process'
-import type { EventHandler, TerminalEvent, LaunchEvent } from './events/events.js'
+import type { EventHandler, TerminalEvent, LaunchEvent, ChildProcessEvent } from './events/events.js'
 import type FS from 'fs'
 
 // ==================================================================
@@ -76,6 +76,20 @@ export interface SpawnOptions extends Omit<cp.SpawnOptions, 'stdio' | 'detached'
      * process after the current one had started (in milliseconds)
      */
     deferNext?: number
+    /** 
+     * Called whenever the process exits unexpectedly - Without user interaction
+     * like the use of aa `restart` handler or `rs` terminal command. 
+     */
+    onClose?: EventHandler<ChildProcessEvent>
+    /** 
+     * Called whenever the process is forcefully killed by the user 
+     * using a `restart/kill` handler or using the terminal.
+     */
+    onKill?: EventHandler<ChildProcessEvent>
+    /** 
+     * Called whenever the process is spawned - Including when it's restarted or revived.
+     */
+    onSpawn?: EventHandler<ChildProcessEvent>
 
 }
 
@@ -84,6 +98,9 @@ export const ZSpawnOptions = z.object({
     cwd: string().optional(),
     stdout: union([ literal('all'), z.literal('none') ]).optional(),
     deferNext: number().optional(),
+    onClose: z.function().optional(),
+    onKill: z.function().optional(),
+    onSpawn: z.function().optional(),
     // Illegal
     stdio: z.undefined(),
     detached: z.undefined()

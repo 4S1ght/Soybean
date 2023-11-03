@@ -14,4 +14,7 @@ export const RELEASE_VERSION_STRING = (JSON.parse(fs.readFileSync(path.join(__di
 export const RELEASE_VERSION = RELEASE_VERSION_STRING.split('.').map(x => Number(x)) as [number, number, number]
 
 // SAFEGUARDS
-export const MAX_FAILED_RETRY_COUNT = 5
+export const BREAKER_INTERVAL_ERROR_MAX_COUNT = 5
+
+export const BREAKER_PROCESS_RESTART_MAX_COUNT = 3
+export const BREAKER_PROCESS_RESTART_COOLDOWN = 10 * 1000
