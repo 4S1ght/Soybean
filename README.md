@@ -154,6 +154,9 @@ Soybean({
 | `stdout` | `"all" \| "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
+| `onSpawn` | `EventHandler` | An event handler called whenever the process is spawned. |
+| `onKill` | `EventHandler` | An event handler called whenever the process is killed by the user, so either through the terminal using the `kl` command or by another `cp.kill` event handler. |
+| `onClose` | `EventHandler` | An event handler called whenever the process quits on its own. |
 
 The child process' configuration object accepts the above properties, as well as standard options available for [`child_process.spawn()`](https://nodejs.org/api/child_process.html#child_processspawncommand-args-options) such as `shell` or `signal`, with exception of `stdio` and `detached` which were either disabled or altered due to how soybean operates.
 
@@ -257,6 +260,11 @@ The different types of events include:
 - `TerminalEvent` - Event emitted when a user-specified command is entered in the integrated terminal.
     - `WatchEven.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
     - `WatchEven.argvRaw` (`string`) - The raw string of text passed after the command keyword.
+        - All of which are available through `event.get()`.
+
+- `ChildProcessEvent` - Event emitted by a child process when it's killed, revived, restarted or dies unexpectedly, configurable through [child process options](#child-process-configuration-options).
+    - `ChildProcessEvent.processName` (`string`) - The name of the process that triggered the event.
+    - `ChildProcessEvent.exitCode` (`number | null`) - The exit code returned by the child process, if the event originated from the process' death.
         - All of which are available through `event.get()`.
 
 ## Using symbols
@@ -660,21 +668,21 @@ Use them for managing the lifecycle of your child processes, like restarting a c
 Kills a child process of a given name if it's alive.  
 **Note**: Use the `pcs` command in the integrated terminal to check the process' status.
 ```ts
-cp.kill(process: string)
+cp.kill(process: string | symbol)
 ```
 
 ### `cp.revive()`
 Revives a dead child process of a given name if it's dead.  
 **Note**: Use the `pcs` command in the integrated terminal to check the process' status.
 ```ts
-cp.kill(process: string)
+cp.revive(process: string | symbol)
 ```
 
 ### `cp.restart()`
 Restarts a child process of a given name.  
 Unlike `cp.kill` and `cp.revive`, `cp.restart` works no matter if the child process is alive or dead. If it's dead, it will simply be revived, if it's alive, it will be killed and brought back.
 ```ts
-cp.kill(process: string)
+cp.restart(process: string | symbol)
 ```
 
 ## Shell handlers
