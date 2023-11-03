@@ -19,11 +19,12 @@ const pmi = () => ProcessManager.getLiveInstance()
  * Kills the child process of a given name.  
  * Acts similar to the `kl` command.
  */
-export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
+export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(name: string | Symbol): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            helpers.getLoggerType(e.source)(`kill "${process}"`)
+            const process = helpers.getStoredValue(e, name)
             const cp = pmi().children.get(process)
+            helpers.getLoggerType(e.source)(`kill "${process}"`)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
             await cp.kill()
@@ -37,13 +38,14 @@ export function kill<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: str
 
 /**
  * Restarts the child process of a given name.  
- * Acts similar to the `kl` command.
+ * Acts similar to the `rs` command.
  */
-export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
+export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(name: string | Symbol): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            helpers.getLoggerType(e.source)(`restart "${process}"`)
+            const process = helpers.getStoredValue(e, name)
             const cp = pmi().children.get(process)
+            helpers.getLoggerType(e.source)(`restart "${process}"`)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
             await cp.restart()
@@ -57,13 +59,14 @@ export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: 
 
 /**
  * Revives the child process of a given name.  
- * Acts similar to the `kl` command.
+ * Acts similar to the `rv` command.
  */
-export function revive<Event extends E.SoybeanEvent = E.SoybeanEvent>(process: string): E.EventHandler<Event> {
+export function revive<Event extends E.SoybeanEvent = E.SoybeanEvent>(name: string | Symbol): E.EventHandler<Event> {
     return (e) => new Promise<null | Error>(async end => {
         try {
-            helpers.getLoggerType(e.source)(`revive "${process}"`)
+            const process = helpers.getStoredValue(e, name)
             const cp = pmi().children.get(process)
+            helpers.getLoggerType(e.source)(`revive "${process}"`)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
             await cp.revive()
