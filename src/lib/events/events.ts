@@ -161,17 +161,17 @@ export class WatchEvent extends SoybeanEvent {
 export class ChildProcessEvent extends SoybeanEvent {
 
     public source: EventType = 'child_process'
-    public name: string
+    public processName: string
     public exitCode: number | null
 
     constructor(name: string, ref: CP.ChildProcess) {
 
         super()
 
-        this.name = name
+        this.processName = name
         this.exitCode = ref.exitCode
 
-        this.set('name', name)
+        this.set('processName', name)
         this.set('exitCode', ref.exitCode)
 
     }
