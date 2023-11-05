@@ -63,10 +63,10 @@ Now Soybean is capable of:
         
 
 # Getting started
-Soybean works on a basis that is followed by many other tools such as `vite` or `tsc`. It is a CLI tool available under the command `soybean` (or `sb` for convenience) that's initialized using a JavaScript configuration file.
+Soybean works on a basis that similar to many other tools such as `vite` or `tsc`. It is a CLI tool available under the command `soybean` (or `sb` for convenience) that's initialized using a JavaScript configuration file.
 
 ## Installation
-Soybean is a CLI tool, meaning it has to be installed globally to be accessible through shell.
+Soybean is a CLI tool, meaning it has to be installed globally to be accessible through user shell.
 
 1. Install globally
     ```bash
@@ -88,11 +88,11 @@ Soybean is a CLI tool, meaning it has to be installed globally to be accessible 
     ```
 
 # Configuration
-Soybean by its design requires a configuration file that stores all of its settings used inside your project.
+Soybean by design requires a configuration file that stores all of its settings used inside your project.
 
 Create a new configuration file.
 ```bash
-soybean init <file?>
+soybean init [file]
 ```
 The above command will create a boilerplate JavaScript config file as seen below.
 ```js
@@ -100,17 +100,9 @@ import { Soybean } from 'Soybean'
 import h from 'Soybean/handlers'
 
 export default Soybean({
-    cp: {
-        node: {
-            command: ['node'],
-            cwd: './',
-            stdout: 'all'
-        }
-    },
+    cp: {},
     routines: {
-        launch: [
-            h.handle(() => console.log("Everything set up!"))
-        ],
+        launch: [],
         watch: []
     },
     terminal: {
@@ -137,7 +129,7 @@ Soybean({
             // And the CWD
             cwd: "./src" 
         },
-        // And set up a yet another process
+        // Set up another process...
         static: {
             command: "http-server",
             cwd: "./dist" 
@@ -150,7 +142,7 @@ Soybean({
 
 | Property name | Type | Description |
 | ------------- | ---- | ----------- |
-| `command` | `string \| Array<string>` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command, like `tsc` or `vite` and an `Array<string>` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
+| `command` | `string \| string[]` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command, like `tsc` or `vite` and an `string[]` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
 | `stdout` | `"all" \| "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
@@ -285,7 +277,7 @@ group([
 ])
 ```
 
-Additionally, for string parameters that support dynamic values with the use of `symbols` string templates can be used instead:
+Additionally, for string parameters that support dynamic values with the use of `symbols`, string templates can be used instead:
 ```ts
 group([
     // Set a "my-dir" variable.
@@ -709,8 +701,8 @@ shell.spawn(['tsc', '--outDir', './dest/'], { stdio: 'none' })
 </details>
 <br/>
 
-The altered `options` object properties:
-- `stdio` - which accepts the following values:
+The altered `options` object properties include:
+- `stdio`
     - `"all"` (default) - Pipes `stdout` and `stderr` to the terminal.
     - `"none"` - Mutes the entire process.
     - `"takeover"` - Temporarily takes over the terminal's output **and** input, letting you interact with the spawned process until it dies.
@@ -726,11 +718,8 @@ Accepts a string `key` used to read the data from the event object and optionall
 Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#reviver) function can be provided for custom parsing directives.
 
 ```ts
-// Overloads
-json.parse(key: string)
-json.parse(key: string, replacer: Function)
-json.parse(key: string, saveTo: string)
-json.parse(key: string, saveTo: string, replacer: Function)
+json.parse(key: string, saveTo?: string, replacer?: Function) 
+(+3 overloads)
 ```
 
 <details>
@@ -755,13 +744,8 @@ Accepts a string `key` to read the data from the event object and optionally a `
 Additionally, in rare instances where it's needed, a [`replacer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#replacer) function can be provided for custom parsing directives, otherwise an optional `space` setting is used to specify spaces or tabs used for pretty formatting.
 
 ```ts
-// Overloads
-json.stringify(key: string)
-json.stringify(key: string, replacer: Function)
-json.stringify(key: string, saveTo: string)
-json.stringify(key: string, saveTo: string, space: number|string)
-json.stringify(key: string, saveTo: string, replacer: Function)
-json.stringify(key: string, saveTo: string, replacer: Function, space: number|string)
+json.stringify(key: string, saveTo?: string, replacer?: Function, space?: number|string) 
+(+5 overloads)
 ```
 
 <details>
