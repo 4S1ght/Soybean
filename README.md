@@ -11,9 +11,11 @@
 <p>
 
 ## About the project
-Soybean is an automation multi-tool that started as a simple script to ease the annoying process of spawning multiple compilers, frameworks and other CLI tools and constantly restarting them manually each time part of the code or configuration has changed.
+Ever had to work on a complicated project, using multiple tools, compilers, bundlers, manually restart things or move a file from one place to another each time a tiny thing has changed?
 
-Now Soybean is capable of:
+Soybean started as a simple script to ease the annoying process of dealing with these sorts of things and evolved into an automation multi-tool.
+
+As of now Soybean is capable of:
 - **Spawning and managing multiple child processes** such as compilers and frameworks from within a single terminal window - No more switching between terminal tabs to see what's broken.
 - **Running automated tasks**, or "routines" based on events that happen as you do your work - Fetch the remote at the start of your work, restart your app on `.env` file change or run a shell command in an interval.
 - **Letting you specify custom terminal command handlers** that allow you to run tasks on demand from within Soybean's terminal, along with keeping your command history and passing through unrecognized commands to a system shell like `zsh` or `powershell` - You don't need a separate terminal tab to interact with your OS.
@@ -60,6 +62,8 @@ Now Soybean is capable of:
             - [`json.stringify()`](#jsonstringify)
         - [Network](#network-handlers)
             - [`net.fetch()`](#netfetch)
+        - [Os](#os-handlers)
+            - [`os.platform()`](#osplatform)
         
 
 # Getting started
@@ -223,14 +227,13 @@ The different types of events include:
 
 - `SoybeanEvent` - The default object whose properties and information are available to every event handler used. All of the event objects below extend the `SoybeanEvent` class.
     - `SoybeanEvent.source` - The source of the event, which, depending on where it originated from can be one of - `"event"` (Default value), `"terminal"`, `"launch"`, `"watcher"`.
-    - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by a subsequent event handler inside a [handler group](#group-handler).
+    - `SoybeanEvent.set()` - A method used to store data on the event object, which can then be retrieved and used later by a subsequent event handler inside a [handler group](#group).
         ```ts
         event.set(key: string, data: any)
         ```
         Alternatively, it is possible to read properties directly (Only available as read-only. It isn't possible to **set** data this way).
         ```ts
-        event.key = 'string'
-        event["key"] = 'string'
+        event.get('key') | event.key |  event["key"]
         ```
     - `SoybeanEvent.get()` - Used to retrieve a piece of data set on the event object with `set()`.
         ```ts
@@ -793,3 +796,25 @@ net.fetch('https://github.com', {
 })
 ```
 </details>
+
+## OS handlers
+Operating system handlers that let you interact with the OS.
+
+### `os.platform()`
+Runs the callback event handler only if Node's native `process.platform`'s value 
+matches at least one name in specified by the `platform` parameter.
+
+```ts
+os.platform(platform: string, handler: EventHandler)
+```
+
+<details>
+<summary>Code snippet</summary>
+
+```ts
+handlers.os.platform('darwin|linux', handlers.handle(event => {
+    console.log("We're running on MacOS or Linux!")
+}))
+```
+</details>
+
