@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Added `os.platform()` event handler which is capable of running an another callback event handler based on the host OS.
+    ```js
+    handlers.os.platform('darwin|linux', handlers.handle(event => console.log("We're running on MacOS or Linux!")))
+    ```
+
 ## [0.3.4]
 
 ### Added
