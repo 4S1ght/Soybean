@@ -18,7 +18,7 @@ Soybean started as a simple script to ease the annoying process of dealing with 
 As of now Soybean is capable of:
 - **Spawning and managing multiple child processes** such as compilers and frameworks from within a single terminal window - No more switching between terminal tabs to see what's broken.
 - **Running automated tasks**, or "routines" based on events that happen as you do your work - Fetch the remote at the start of your work, restart your app on `.env` file change or run a shell command in an interval.
-- **Letting you specify custom terminal command handlers** that allow you to run tasks on demand from within Soybean's terminal, along with keeping your command history and passing through unrecognized commands to a system shell like `zsh` or `powershell` - You don't need a separate terminal tab to interact with your OS.
+- **Running custom handlers from the terminal** that allow you to easily run quick tasks, input and manipulate data such as local variables, along with keeping your command history and passing through unrecognized commands to a system shell like `zsh` or `powershell` - You don't need a separate terminal tab to interact with your OS.
 
 ## Table of contents
 - [Getting started](#getting-started)
@@ -29,6 +29,8 @@ As of now Soybean is capable of:
         - [Launch routines](#launch-routines)
         - [Watch routines](#watch-routines)
             - [Watch routines configuration options](#watch-routines-configuration-options)
+    - [Integrated terminal](#integrated-terminal)
+
 - [Modules](#modules)
     - [Event handlers](#event-handlers-module)
         - [Event object](#event-object)
@@ -146,8 +148,8 @@ Soybean({
 
 | Property name | Type | Description |
 | ------------- | ---- | ----------- |
-| `command` | `string \| string[]` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command, like `tsc` or `vite` and an `string[]` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
-| `stdout` | `"all" \| "none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
+| `command` | `string\|string[]` | Specifies the command used to spawn the child process. A simple `string` can be used for a bare command, like `tsc` or `vite` and an `string[]` to specify the command together with command parameters, eg. `["tsc", "-w", "--strict"]`. |
+| `stdout` | `"all"\|"none"` | Specifies whether or not to pipe the child process' `STDOUT`, this will effectively mute the child process if used with `"none"` or display all of it's output if used with `"all"`. |
 | `cwd` | `string` | The current working directory of the child process, relative to the Soybean configuration file. |
 | `deferNext` | `number` | Time in `ms` for which to wait with further execution after spawning this process. This allows for tricks like spawning a compiler and waiting a second before spawning a different process that relies on the compiler's output. |
 | `onSpawn` | `EventHandler` | An event handler called whenever the process is spawned. |
@@ -205,10 +207,41 @@ Soybean({
 | Property name | Type | Default value | Description |
 | ------------- | ---- | ------------- | ----------- |
 | `file`                | `string`      | -     | The target file or directory path that is being watched. |
-| `handle`              | `Function`    | -     | The [event handler](#handlers-mofule) called whenever a watch event is fired. |
+| `handle`              | `Function`    | -     | The [event handler](#handlers-module) called whenever a watch event is fired. |
 | `options.rateLimiter` | `number`      | `500` | The amount of time in milliseconds to wait after a watch event before the next one can be registered. |
 
 The `options` object also accepts native [fs.watch](https://nodejs.org/docs/latest/api/fs.html#fswatchfilename-options-listener) options - `encoding`, `persistent`, `recursive` and `signal`.
+
+# Integrated terminal
+Soybean's integrated terminal lets you interact with the program while it's running.
+Alongside a few built-in commands, you're able to specify [your own](#event-handlers-module) command handlers.
+
+```js
+Soybean({
+    terminal: {
+        // Keep the history of the last 50 commands and save it across sessions.
+        keepHistory: 50,
+        // Use a passthrough shell to pass "through" unrecognized commands to.
+        passthroughShell: true,
+        // Add a "change" to let the used change `myVar` on the fly.
+        handlers: {
+            change: handlers.handle(e => {
+                // Change some variable
+                myVar = e.argv[0]
+                // Update the settings of an external tool or library...
+                someTool.updateState(`new state: ${e.argvRaw}`)
+            })
+        }
+    }
+})
+```
+
+## Terminal configuration options
+| Property name | Type | Default value | Description |
+| ------------- | ---- | ------------- | ----------- |
+| `passthroughShell` | `string\|boolean` | `false` | The passthrough shell used to execute commands that are unrecognized by Soybean itself, such as `mkdir`, `sudo`, etc... Use `false` to disable, `true` to use the default system shell, or a `string`, such as `"/bin/zsh"` or `"cmd.exe"` to use a specific shell. |
+| `keepHistory` | `number` | `0` | The number specifying how many previous commands to remember across sessions. These commands will be remembered by the global/local (depending on user setup) installation of Soybean even if the program is closed and reopened again. |
+| `handlers` | `Record<string, EventHandler>` | - | An object containing user-specified command handlers. |
 
 # Modules
 
@@ -250,17 +283,14 @@ The different types of events include:
 - `WatchEvent` - The event emitted by [watch routines](#watch-routines).
     - `WatchEvent.filename` (`string`) - Path to the file/directory where the event originated.
     - `WatchEvent.watchEventType` (`"rename" | "change"`) - The type of change.
-        - All of which are available through `event.get()`.
 
 - `TerminalEvent` - Event emitted when a user-specified command is entered in the integrated terminal.
     - `WatchEven.argv` (`string[]`) - An array of space-separated command parameters passed after the command keyword.
     - `WatchEven.argvRaw` (`string`) - The raw string of text passed after the command keyword.
-        - All of which are available through `event.get()`.
 
 - `ChildProcessEvent` - Event emitted by a child process when it's killed, revived, restarted or dies unexpectedly, configurable through [child process options](#child-process-configuration-options).
     - `ChildProcessEvent.processName` (`string`) - The name of the process that triggered the event.
     - `ChildProcessEvent.exitCode` (`number | null`) - The exit code returned by the child process, if the event originated from the process' death.
-        - All of which are available through `event.get()`.
 
 ## Using symbols
 Many of the event handlers allow you to replace their regular parameters with `symbols` which are used to make the values of these parameters dynamic, as opposed to hardcoding them.

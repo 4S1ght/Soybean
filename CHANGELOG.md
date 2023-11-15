@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
     ```js
     handlers.os.platform('darwin|linux', handlers.handle(event => console.log("We're running on MacOS or Linux!")))
     ```
+- Added missing integrated [terminal documentation](./README.md#integrated-terminal).
 
 ## [0.3.4]
 
