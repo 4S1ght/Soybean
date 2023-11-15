@@ -11,6 +11,18 @@ All notable changes to this project are documented in this file.
     ```
 - Added missing integrated [terminal documentation](./README.md#integrated-terminal).
 
+### Changed
+- Consolidated scoped package exports into a single object.
+    ```js
+    // Before
+    import { Soybean } from 'soybean'
+    import handlers from 'soybean/handlers'
+    ```
+    ```js
+    // Now
+    import { Soybean, handlers } from 'soybean'
+    ```
+
 ## [0.3.4]
 
 ### Added
