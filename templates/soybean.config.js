@@ -1,6 +1,5 @@
 
-import { Soybean } from 'Soybean'
-import h from 'Soybean/handlers'
+import { Soybean, handlers } from 'Soybean'
 
 export default Soybean({
     cp: {},

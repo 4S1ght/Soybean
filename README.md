@@ -30,6 +30,7 @@ As of now Soybean is capable of:
         - [Watch routines](#watch-routines)
             - [Watch routines configuration options](#watch-routines-configuration-options)
     - [Integrated terminal](#integrated-terminal)
+            - [Terminal configuration options](#terminal-configuration-options)
 
 - [Modules](#modules)
     - [Event handlers](#event-handlers-module)
@@ -102,8 +103,7 @@ soybean init [file]
 ```
 The above command will create a boilerplate JavaScript config file as seen below.
 ```js
-import { Soybean } from 'Soybean'
-import h from 'Soybean/handlers'
+import { Soybean, handlers } from 'Soybean'
 
 export default Soybean({
     cp: {},
@@ -249,9 +249,8 @@ Soybean({
 The handlers module is a set of methods that allow you to configure event handlers that react events that occur in Soybean during your work. They happen when you save a file, type a command or as you launch Soybean itself.
 
 ```ts
-import handlers from 'soybean/handlers'
+import { handlers } from 'soybean'
 ```
-
 
 ## Event object
 Each time an event handler is called in Soybean, a new event object is created containing the information about the event that ocurred.
@@ -435,7 +434,7 @@ Inside `forEach` loops, three items are available through `get()` on the event o
 - `"value"` - The current value from the array the loop is iterating over.
 
 **Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
-Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed to `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
 forEach(iterable: symbol | any[], handler: EventHandler)
@@ -470,7 +469,7 @@ Inside `forOf` loops, two items are available through `get()` on the event objec
 - `"value"` - The current value read from the iterated object.
 
 **Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
-Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed to `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
 forOf(iterable: symbol | Iterable, handler: EventHandler)
@@ -506,7 +505,7 @@ Inside `forIn` loops, three items are available through `get()` on the event obj
 - `"value"` - The current value read from the object.
 
 **Note:** If the loop has an ID set, all the above properties will be prefixed with its ID.  
-Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
+Eg. For a loop labeled as `"loop1"`, the `"value"` property would be changed ro `"loop1-value"`. This lets you nest loops and groups inside each other without variable naming conflicts.
 
 ```ts
 forIn(iterable: symbol | Record<any, any>, handler: EventHandler)
@@ -727,14 +726,14 @@ shell.spawn(command: string | string[], options?: SpawnOptions)
 shell.spawn('tsc')
 // Spawn TSC with custom parameters
 shell.spawn(['tsc', '--outDir', './dest/'])
-// SPawn the process muted
+// Spawn the process muted
 shell.spawn(['tsc', '--outDir', './dest/'], { stdio: 'none' })
 ```
 
 </details>
 <br/>
 
-The altered `options` object properties include:
+The altered `options` object properties for the `shell.spawn` handler include:
 - `stdio`
     - `"all"` (default) - Pipes `stdout` and `stderr` to the terminal.
     - `"none"` - Mutes the entire process.
