@@ -11,16 +11,6 @@
         "build/*",
         "templates/*"
     ],
-    "exports": {
-        ".": {
-            "default": "./build/exports/index.js",
-            "types": "./build/exports/index.d.ts"
-        },
-        "./handlers": {
-            "default": "./build/exports/handlers.js",
-            "types": "./build/exports/handlers.d.ts"
-        }
-    },
     "bin": {
         "soybean": "./build/bin/bin.js",
         "sb": "./build/bin/bin.js"
