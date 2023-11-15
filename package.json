@@ -1,6 +1,6 @@
 {
     "name": "soybean",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "Task automation and convenience tool for building NodeJS projects.",
     "main": "build/exports/index.js",
     "type": "module",

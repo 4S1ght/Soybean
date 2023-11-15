@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.5]
+
 ### Added
 - Added `os.platform()` event handler which is capable of running an another callback event handler based on the host OS.
     ```js
