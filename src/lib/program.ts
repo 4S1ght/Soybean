@@ -15,7 +15,6 @@ import { SoybeanEvent, LaunchEvent, TerminalEvent, WatchEvent, ChildProcessEvent
 import commands from "./terminal/liveterminal_commands.js"
 
 import * as url from 'url'
-import { kMaxLength } from 'buffer'
 const __filename = url.fileURLToPath(import.meta.url)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 

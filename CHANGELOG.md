@@ -2,7 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [0.3.6]
+- Added `hist "show"|"clear"|"file"` command.
+    - `hist show` - To show command history.
+    - `hist clear` - To clear the history of the current terminal session **and** the history file saved on the disk.
+    - `hist file` - To show the location of the history file used by the Soybean installation running. This path differs between local and global installations.
 
 ## [0.3.5]
 

@@ -9,6 +9,7 @@ import Manager from '../process/process_mgr.js'
 import Program from '../program.js'
 
 import type * as E from '../events/events.js'
+import LiveTerminal from './liveterminal.js'
 
 // Types ============================================================
 
@@ -149,6 +150,37 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
         cat: 'Misc',
         usage: 'quit',
         desc: 'Exits Soybean gracefully. Double-press CTRL+C alternatively.'
+    }),
+    
+    "hist": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
+
+        const lt = LiveTerminal.getLiveInstance()
+        const sub = ["clear", "show", "file"] as const
+        const sub0 = e.argv[0] as typeof sub[number] | undefined
+
+        lt.forgetLastCommand()
+
+        if (!sub0 || !sub.includes(sub0)) return Terminal.error(`"hist" command parameter must be one of (${sub.map(x => `"${x}"`).join(', ')}), recieved: ${sub0 ? '"'+sub0+'"' : '[No parameter]'}`)
+
+        if (sub0 === 'show') {
+            const commands = lt._history.map(x => '- ' + x.join('')); commands.pop()
+            Terminal.info("Command history:")
+            Terminal.info(commands.join('\n'))
+        }
+        if (sub0 === 'clear') {
+            lt._history = [[]]
+            lt._historyIndex = 0
+            lt.saveHistoryFile()
+            Terminal.info('Cleared history.')
+        }
+        if (sub0 === 'file') {
+            Terminal.info(`File located in "${lt.getHistoryFileSaveLocation()}"`)
+        }
+
+    }, {
+        cat: 'Misc',
+        usage: 'hist <"clear" | "show" | "file">',
+        desc: 'Used to clear the history with "hist clear", to show it with "hist show" or with "hist file" to locate the file where the current session is saving the history to - Location depends on the installation location of Soybean.'
     }),
 
     // PROCESS MANAGEMENT =========================================

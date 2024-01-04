@@ -176,9 +176,9 @@ export class LiveTerminal extends EventEmitter {
     private _isEditingOldCommand = () => this._historyIndex < this._history.length - 1
 
     /** Command history */
-    private _history: string[][] = [[]]
+    public _history: string[][] = [[]] // Public due to use in a built-in command handler
     /** Current position in the history */
-    private _historyIndex: number = 0
+    public _historyIndex: number = 0
     /** Current X position of the cursor while editing a command. */
     private _cursorIndex: number = 0
     /** Determines x-axis scrolling offset if a command is longer than total amount of columns. */
@@ -193,11 +193,16 @@ export class LiveTerminal extends EventEmitter {
     /** Reference to the live background shell configured by the user. */
     private declare _shell: cp.ChildProcess
 
+    /** Returns the location of the history file used. */
+    public getHistoryFileSaveLocation() {
+        return path.join(__dirname, "../../../.cmdhistory")
+    }
+
     /** Loads a history file back to memory. */
     public loadHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
-                const file = path.join(__dirname, "../../../.cmdhistory")
+                const file = this.getHistoryFileSaveLocation()
                 if (fs.existsSync(file)) {
                     this._history = [
                         ...fs.readFileSync(file, { encoding: 'utf-8'}).split('\n').map(x => x.split('')),
@@ -217,7 +222,7 @@ export class LiveTerminal extends EventEmitter {
     public saveHistoryFile(): void {
         if (this.p && this.p!.keepHistory) {
             try {
-                const file = path.join(__dirname, "../../../.cmdhistory")
+                const file = this.getHistoryFileSaveLocation()
                 const slice = this._history.slice(-this.p!.keepHistory)
                 // Remove working char array (the one that can be edited by the user)
                 slice.pop() 
@@ -232,6 +237,14 @@ export class LiveTerminal extends EventEmitter {
                 this.emit('history-emit-err', error as Error)
             }
         }
+    }
+
+    public forgetLastCommand() {
+        this._history.pop()
+        this._history.pop()
+        this._history.push([])
+        this._historyIndex -= 1
+        if (this._historyIndex <= 0) this._historyIndex = 0
     }
 
     /**
