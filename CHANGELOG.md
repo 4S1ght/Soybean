@@ -2,6 +2,9 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.3.7]
+- Removed `rv <process-name>` command responsible for reviving dead processes entirely, in favor of integrating its functionality into the `rs <process-name>` command. `rs` is now capable of both reviving dead child processes and restarting living processes.
+
 ## [0.3.6]
 - Added `hist "show"|"clear"|"file"` command.
     - `hist show` - To show command history.

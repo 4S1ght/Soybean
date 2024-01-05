@@ -201,29 +201,9 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
 
     }, {
         cat: 'Process management',
-        usage: 'kl <process>',
+        usage: 'kl <process-name>',
         desc: 'Kills a child process of a given name.'
     }),
-
-    "rv": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
-        
-        if (!e.argv[0]) return Terminal.error('Unspecified process name.')
-
-        const mgr = Manager.getLiveInstance()
-        const processName = e.argv[0]
-        const process = mgr.children.get(processName)
-
-        if (!process)                                       return Terminal.error(`Could not find process "${processName}".`)
-        if (['alive', 'awaiting'].includes(process.status)) return Terminal.error(`Process "${processName}" is not dead.`)
-        
-        Terminal.info(`Reviving process...`)
-        process.revive()
-
-    }, {
-        cat: 'Process management',
-        usage: 'rv <process>',
-        desc: 'Revives a child process of a given name, that was previously killed with the "kl" command.'
-    }), 
 
     "rs": h.handle<E.TerminalEvent, CommandMeta>(async (e) => {
         
@@ -236,12 +216,14 @@ const commands: Record<string, E.EventHandler<E.TerminalEvent, CommandMeta>> = {
         if (!process) return Terminal.error(`Could not find process "${processName}".`)
 
         Terminal.info(`Restarting process...`)
-        await process.restart()
+
+        if (process.status === 'alive') await process.restart()
+        if (['dead', 'killed'].includes(process.status)) process.revive()
 
     }, {
         cat: 'Process management',
-        usage: 'rs <process>',
-        desc: 'Restarts a child process.'
+        usage: 'rs <process-name>',
+        desc: 'Restarts a child process. Either by restarting a running process, or reviving a dead one.'
     }),
 
     "pcs": h.handle<E.TerminalEvent, CommandMeta>(async () => {
