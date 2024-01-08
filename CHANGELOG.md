@@ -3,9 +3,16 @@
 All notable changes to this project are documented in this file.
 
 ## [0.3.7]
-- Removed `rv <process-name>` command responsible for reviving dead processes entirely, in favor of integrating its functionality into the `rs <process-name>` command. `rs` is now capable of both reviving dead child processes and restarting living processes.
+
+### Removed
+- Removed `rv <process-name>` command responsible for reviving dead processes entirely in favor of integrating its functionality into the `rs <process-name>` command. `rs` is now capable of both reviving dead child processes and restarting running ones.
+
+### Fixed
+- `cp.restart()` event handler now revives the child process if it's dead and restarts it otherwise.
 
 ## [0.3.6]
+
+### added
 - Added `hist "show"|"clear"|"file"` command.
     - `hist show` - To show command history.
     - `hist clear` - To clear the history of the current terminal session **and** the history file saved on the disk.

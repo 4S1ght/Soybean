@@ -48,7 +48,7 @@ export function restart<Event extends E.SoybeanEvent = E.SoybeanEvent>(name: str
             helpers.getLoggerType(e.source)(`restart "${process}"`)
 
             if (!cp) throw new Error(`Could not find process "${process}"`)
-            await cp.restart()
+            await cp.alive ? cp.restart() : cp.revive()
             end(null)
         }
         catch (error) {
