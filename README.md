@@ -10,6 +10,10 @@
     <img src="./docs/img/launch_sequence_intro.png" title="Project splash screen" alt="Project splash screen">
 <p>
 
+# Project on hold!
+This project is currently on hold due to terminal and child process issues that can not be fixed without the use of native modules.
+Soybean will be completely rewritten in the future.
+
 ## About the project
 Ever had to work on a complicated project, using multiple tools, compilers, bundlers, manually restart things or move a file from one place to another each time a tiny thing has changed?
 
